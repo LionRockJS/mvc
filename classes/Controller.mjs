@@ -7,6 +7,17 @@
  */
 
 export default class Controller {
+  static STATE_CLIENT = 'client';
+  static STATE_REQUEST = 'request';
+  static STATE_LANGUAGE = 'language';
+  static STATE_CLIENT_IP = 'clientIP';
+  static STATE_HOSTNAME = 'hostname';
+  static STATE_CHECKPOINT = 'checkpoint';
+  static STATE_ACTION = 'action';
+  static STATE_QUERY = 'query';
+  static STATE_PARAMS = 'params';
+  static STATE_FULL_ACTION_NAME = 'full_action_name';
+
   /**
    *
    * @type {ControllerMixin[]}
@@ -17,8 +28,6 @@ export default class Controller {
   #headerSent = false;
 
   // properties
-  request = null;
-
   error = null;
 
   body = '';
@@ -42,16 +51,25 @@ export default class Controller {
    * @param {Request} request
    */
   constructor(request) {
-    this.request = request;
-    this.language = request.params?.language || request.query?.language;
-    this.clientIP = (!this.request?.headers) ? '0.0.0.0' : (
-      this.request.headers['cf-connecting-ip']
-      || this.request.headers['x-real-ip']
-      || this.request.headers['x-forwarded-for']
-      || this.request.headers.remote_addr
-      || this.request.ip
-    );
-    this.state.set('client', this);
+    const query = request.query || {};
+    const params = request.params || {};
+    const raw = request.raw || {};
+
+    this.state.set(Controller.STATE_QUERY, query);
+    this.state.set(Controller.STATE_PARAMS, params);
+    this.state.set(Controller.STATE_CLIENT, this);
+    this.state.set(Controller.STATE_REQUEST, request);
+    this.state.set(Controller.STATE_LANGUAGE, params.language || query.language);
+    this.state.set(Controller.STATE_CLIENT_IP, (!request?.headers) ? '0.0.0.0' : (
+      request.headers['cf-connecting-ip']
+      || request.headers['x-real-ip']
+      || request.headers['x-forwarded-for']
+      || request.headers.remote_addr
+      || request.ip
+    ));
+    this.state.set(Controller.STATE_HOSTNAME, raw.hostname);
+    this.state.set(Controller.STATE_CHECKPOINT, query.checkpoint || query.cp || null);
+    this.state.set(Controller.STATE_ACTION, params.action);
 
     this.constructor.mixins.forEach(mixin => mixin.init(this.state));
   }
@@ -64,8 +82,8 @@ export default class Controller {
   async execute(actionName = null) {
     try {
       // guard check function action_* exist
-      const action = `action_${actionName || this.request.params?.action || 'index'}`;
-      this.state.set('full_action_name', action);
+      const action = `action_${actionName || this.state.get(Controller.STATE_ACTION) || 'index'}`;
+      this.state.set(Controller.STATE_FULL_ACTION_NAME, action);
       if (this[action] === undefined) await this.#handleActionNotFound(action);
 
       // stage 0 : setup
@@ -172,7 +190,7 @@ export default class Controller {
     if(!keepQueryString){
       this.headers.location = location;
     }else{
-      const query = new URLSearchParams(this.request.query);
+      const query = new URLSearchParams(this.state.get(Controller.STATE_QUERY));
       const qs = query.toString();
       const delimiter = /\?/.test(location) ? '&' : '?';
       this.headers.location = qs ? `${location}${delimiter}${qs}` : location;
@@ -196,13 +214,13 @@ export default class Controller {
   async exit(code) {
     this.status = code;
     this.#headerSent = true;
-    await this.#mixinsExit();
-    await this.onExit();
-  }
 
-  async #mixinsExit() {
+    //exit all mixins
     const { mixins } = this.constructor;
     await Promise.all(mixins.map(async mixin => mixin.exit(this.state)));
+
+    //run delegate onExit
+    await this.onExit();
   }
 
   async onExit(){}

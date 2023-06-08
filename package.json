@@ -3,8 +3,15 @@
   "version": "1.0.0",
   "description": "Controller and View module for LionRockJS",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "jest --coverage"
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage"
+  },
+  "jest": {
+    "verbose": true,
+    "transform": {},
+    "testMatch": ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)", "**/?(*.)+(spec|test).mjs"],
+    "moduleFileExtensions": ["js", "jsx", "mjs"]
   },
   "repository": {
     "type": "git",

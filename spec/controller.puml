@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Barlow Condensed Semibold"
+skinparam defaultFontSize 16
+
+start
+:request<
+:extract language, clientIP, checkpoint to state;
+:Mixin init;
+:execute;
+if(check action exist) then (no)
+:handle action not found;
+stop
+else (yes)
+:Mixin setup;
+:Mixin before;
+:Controller before;
+:Mixin Action;
+:Controller Action;
+:Mixin After;
+:Controller After;
+endif
+end
+
+@enduml

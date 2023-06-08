@@ -96,10 +96,8 @@ describe('test Controller', () => {
     class C extends A{}
 
     C.foos.push('foo')
-    console.log(B.foos);
 
-    console.log(A.foos === B.foos);
-    console.log(B.foos === C.foos);
+    expect(A.foos).toBe(B.foos);
     expect(B.foos).toBe(C.foos);
   });
 

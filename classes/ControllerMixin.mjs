@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020-2021 Kojin Nakana
+ * Copyright (c) 2023 Kojin Nakana
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,9 +7,6 @@
  */
 
 export default class ControllerMixin {
-  static CLIENT = 'client';
-  static FULL_ACTION_NAME = 'full_action_name';
-
   /**
    * init is static function during initialize controller,
    * should not directly modify controller's property because
