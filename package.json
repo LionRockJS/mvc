@@ -1,0 +1,25 @@
+{
+  "name": "@lionrockjs/mvc",
+  "version": "1.0.0",
+  "description": "Controller and View module for LionRockJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LionRockJS/mvc.git"
+  },
+  "keywords": [
+    "LionRock",
+    "MVC",
+    "Controller",
+    "ControllerMixin"
+  ],
+  "author": "Kojin Nakana",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LionRockJS/mvc/issues"
+  },
+  "homepage": "https://github.com/LionRockJS/mvc#readme"
+}

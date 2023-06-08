@@ -1,0 +1,65 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "URW DIN SemiCond"
+skinparam defaultFontSize 14
+skinparam roundcorner 10
+skinparam classAttributeIconSize 0
+
+
+class View{
+  {static} defaultViewClass
+  {static} caches
+
+  {static} factory(file, data)
+  {static} clearCache()
+
+  View(file, data)
+  render()
+}
+
+class Controller{
+  {static} mixins
+  {static} suppressActionNotFound
+  request
+  error
+  body
+  headers
+  cookies
+  status
+  state
+..
+
+  Controller(request)
+  mixinAction(fullActionName)
+  async before()
+  async after()
+  async execute(actionName)
+
+.. extend functions ..
+  static mixins = [...super.mixins, MixinA]
+
+.. default route ..
+  async action_index()
+
+.. user flow ..
+  async exit(code)
+  async redirect(location, keepQueryString= false)
+  async forbidden(message)
+}
+
+abstract class ControllerMixin{
+  state.get(CLIENT) : Controller
+
+  {static} init(state)
+  {static} async setup(state)
+  {static} async before(state)
+  {static} async execute(action, state)
+  {static} async action_xxx(state)
+  {static} async after(state)
+  {static} async exit(code)
+}
+
+Controller <-- ControllerMixin
+
+@enduml
