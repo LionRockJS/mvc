@@ -17,6 +17,7 @@ export default class Controller {
   static STATE_QUERY = 'query';
   static STATE_PARAMS = 'params';
   static STATE_FULL_ACTION_NAME = 'full_action_name';
+  static STATE_HEADERS = 'headers';
 
   /**
    *
@@ -70,6 +71,7 @@ export default class Controller {
     this.state.set(Controller.STATE_HOSTNAME, raw.hostname);
     this.state.set(Controller.STATE_CHECKPOINT, query.checkpoint || query.cp || null);
     this.state.set(Controller.STATE_ACTION, params.action);
+    this.state.set(Controller.STATE_HEADERS, this.headers);
 
     this.constructor.mixins.forEach(mixin => mixin.init(this.state));
   }
