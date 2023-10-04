@@ -50,8 +50,9 @@ export default class Controller {
   /**
    *
    * @param {Request} request
+   * @param {Map} state
    */
-  constructor(request) {
+  constructor(request, state = new Map()) {
     const query = request.query || {};
     const params = request.params || {};
     const raw = request.raw || {};
@@ -72,6 +73,10 @@ export default class Controller {
     this.state.set(Controller.STATE_CHECKPOINT, query.checkpoint || query.cp || null);
     this.state.set(Controller.STATE_ACTION, params.action);
     this.state.set(Controller.STATE_HEADERS, this.headers);
+
+    state.forEach((value, key) => {
+      this.state.set(key, value);
+    });
 
     this.constructor.mixins.forEach(mixin => mixin.init(this.state));
   }

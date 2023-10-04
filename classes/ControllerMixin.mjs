@@ -10,13 +10,13 @@ export default class ControllerMixin {
   /**
    * init is static function during initialize controller,
    * should not directly modify controller's property because
-   * it run before concrete controller's constructor
+   * it runs before concrete controller's constructor
    * @param {Map} state
    */
   static init(state) {/***/}
 
   /**
-   * Setup is initializer for async functions, it run in controller.execute before state
+   * Setup is initializer for async functions, it runs in controller.execute() before state
    * @param state
    * @returns {Promise<void>}
    */
