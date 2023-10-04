@@ -1,6 +1,6 @@
-import View from './classes/View';
-import Controller from './classes/Controller';
-import ControllerMixin from './classes/ControllerMixin';
+import View from './classes/View.mjs';
+import Controller from './classes/Controller.mjs';
+import ControllerMixin from './classes/ControllerMixin.mjs';
 
 export default{}
 
