@@ -570,5 +570,22 @@ describe('test Controller', () => {
     const c4 = new Controller({params: {action: 'foo'}});
     await c4.execute('tar');
     expect(c4.state.get(Controller.STATE_FULL_ACTION_NAME)).toBe('action_tar');
+  });
+
+  test('assign state from constructor', async () =>{
+    class TestPreStateController extends Controller {
+      constructor(request) {
+        super(request, new Map([['foo', 'bar']]));
+      }
+      // eslint-disable-next-line class-methods-use-this
+      async action_index() {
+        await c.redirect('https://example.com?target=1', true);
+      }
+    }
+
+    const c = new TestPreStateController({query:{}});
+    await c.execute();
+
+    expect(c.state.get('foo')).toBe('bar');
   })
 });
