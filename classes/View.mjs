@@ -28,5 +28,3 @@ export default class View {
     return JSON.stringify(this.data);
   }
 }
-
-Object.freeze(View.prototype);

@@ -48,5 +48,3 @@ export default class ControllerMixin {
    */
   static async exit(state) {/***/}
 }
-
-Object.freeze(ControllerMixin.prototype);
