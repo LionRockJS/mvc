@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023 Kojin Nakana
+ * Copyright (c) 2024 Kojin Nakana
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -232,3 +232,5 @@ export default class Controller {
 
   async onExit(){}
 }
+
+Object.freeze(Controller.prototype);
