@@ -8,12 +8,12 @@ skinparam classAttributeIconSize 0
 
 
 class View{
-  {static} defaultViewClass
+  {static} DefaultViewClass
   {static} caches
-
+  --
   {static} factory(file, data)
   {static} clearCache()
-
+  --
   View(file, data)
   render()
 }
@@ -21,20 +21,32 @@ class View{
 class Controller{
   {static} mixins
   {static} suppressActionNotFound
-  request
+
+  {static} STATE_CLIENT
+  {static} STATE_QUERY
+  {static} STATE_PARAMS
+  {static} STATE_REQUEST
+  {static} STATE_LANGUAGE
+  {static} STATE_CLIENT_IP
+  {static} STATE_HOSTNAME
+  {static} STATE_CHECKPOINT
+  {static} STATE_ACTION
+  {static} STATE_FULL_ACTION_NAME
+  {static} STATE_HEADERS
+  {static} STATE_HEADER_SENT
+  {static} STATE_COOKIES
+
   error
   body
-  headers
-  cookies
   status
   state
 ..
 
   Controller(request)
-  mixinAction(fullActionName)
-  async before()
-  async after()
   async execute(actionName)
+  async before()
+  async mixinAction(fullActionName)
+  async after()
 
 .. extend functions ..
   static mixins = [...super.mixins, MixinA]
@@ -46,6 +58,7 @@ class Controller{
   async exit(code)
   async redirect(location, keepQueryString= false)
   async forbidden(message)
+  async onExit()
 }
 
 abstract class ControllerMixin{

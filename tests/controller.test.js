@@ -518,7 +518,7 @@ describe('test Controller', () => {
     const c = new TestRedirectController({query:{utm_source: "test"}});
     await c.execute();
 
-    expect(c.headers.location).toBe('https://example.com?utm_source=test');
+    expect(c.state.get(Controller.STATE_HEADERS).location).toBe('https://example.com?utm_source=test');
   })
 
   test("redirect add query string", async () => {
@@ -532,7 +532,7 @@ describe('test Controller', () => {
     const c = new TestRedirectController({query:{utm_source: "test"}});
     await c.execute();
 
-    expect(c.headers.location).toBe('https://example.com?target=1&utm_source=test');
+    expect(c.state.get(Controller.STATE_HEADERS).location).toBe('https://example.com?target=1&utm_source=test');
   })
 
   test("redirect without query string", async () => {
@@ -546,7 +546,7 @@ describe('test Controller', () => {
     const c = new TestRedirectController({query:{}});
     await c.execute();
 
-    expect(c.headers.location).toBe('https://example.com?target=1');
+    expect(c.state.get(Controller.STATE_HEADERS).location).toBe('https://example.com?target=1');
   })
 
   test('coverage, test action name', async () => {

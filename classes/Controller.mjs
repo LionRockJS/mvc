@@ -18,6 +18,8 @@ export default class Controller {
   static STATE_PARAMS = 'params';
   static STATE_FULL_ACTION_NAME = 'full_action_name';
   static STATE_HEADERS = 'headers';
+  static STATE_HEADER_SENT = 'sent';
+  static STATE_COOKIES = 'cookies';
 
   /**
    *
@@ -26,22 +28,16 @@ export default class Controller {
   static mixins = [];
   static suppressActionNotFound = false;
 
-  #headerSent = false;
-
   // properties
   error = null;
 
   body = '';
 
-  headers = {
-    "X-Content-Type-Options": "nosniff"
-  };
-
   /**
    *
    * @type {{name: String, value: String, options: {secure:Boolean, maxAge:Number}}[]} cookies
    */
-  cookies = [];
+  #cookies = [];
 
   status = 200;
 
@@ -57,9 +53,9 @@ export default class Controller {
     const params = request.params || {};
     const raw = request.raw || {};
 
+    this.state.set(Controller.STATE_CLIENT, this);
     this.state.set(Controller.STATE_QUERY, query);
     this.state.set(Controller.STATE_PARAMS, params);
-    this.state.set(Controller.STATE_CLIENT, this);
     this.state.set(Controller.STATE_REQUEST, request);
     this.state.set(Controller.STATE_LANGUAGE, params.language || query.language);
     this.state.set(Controller.STATE_CLIENT_IP, (!request?.headers) ? '0.0.0.0' : (
@@ -72,7 +68,11 @@ export default class Controller {
     this.state.set(Controller.STATE_HOSTNAME, raw.hostname);
     this.state.set(Controller.STATE_CHECKPOINT, query.checkpoint || query.cp || null);
     this.state.set(Controller.STATE_ACTION, params.action);
-    this.state.set(Controller.STATE_HEADERS, this.headers);
+    this.state.set(Controller.STATE_HEADERS, {
+      "X-Content-Type-Options": "nosniff"
+    });
+    this.state.set(Controller.STATE_HEADER_SENT, false);
+    this.state.set(Controller.STATE_COOKIES, this.#cookies);
 
     state.forEach((value, key) => {
       this.state.set(key, value);
@@ -94,19 +94,19 @@ export default class Controller {
       if (this[action] === undefined) await this.#handleActionNotFound(action);
 
       // stage 0 : setup
-      if (!this.#headerSent) await this.#mixinsSetup();
+      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.#mixinsSetup();
 
       // stage 1 : before
-      if (!this.#headerSent) await this.#mixinsBefore();
-      if (!this.#headerSent) await this.before();
+      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.#mixinsBefore();
+      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.before();
 
       // stage 2 : action
-      if (!this.#headerSent) await this.mixinsAction(action);
-      if (!this.#headerSent) await this[action]();
+      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.mixinsAction(action);
+      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this[action]();
 
       // stage 3 : after
-      if (!this.#headerSent) await this.#mixinsAfter();
-      if (!this.#headerSent) await this.after();
+      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.#mixinsAfter();
+      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.after();
     } catch (err) {
       await this.#serverError(err);
     }
@@ -114,7 +114,7 @@ export default class Controller {
     return {
       status: this.status,
       body: this.body,
-      headers: this.headers,
+      headers: this.state.get(Controller.STATE_HEADERS),
       cookies: this.cookies,
     };
   }
@@ -141,7 +141,7 @@ export default class Controller {
   async #loopMixins(lambda) {
     const { mixins } = this.constructor;
     for (let i = 0; i < mixins.length; i++) {
-      if (this.#headerSent) break;
+      if (this.state.get(Controller.STATE_HEADER_SENT)) break;
       // eslint-disable-next-line no-await-in-loop
       await lambda(mixins[i]);
     }
@@ -194,14 +194,16 @@ export default class Controller {
    * @param {boolean} keepQueryString
    */
   async redirect(location, keepQueryString= false) {
+    const headers = this.state.get(Controller.STATE_HEADERS);
     if(!keepQueryString){
-      this.headers.location = location;
+      headers.location = location;
     }else{
       const query = new URLSearchParams(this.state.get(Controller.STATE_QUERY));
       const qs = query.toString();
       const delimiter = /\?/.test(location) ? '&' : '?';
-      this.headers.location = qs ? `${location}${delimiter}${qs}` : location;
+      headers.location = qs ? `${location}${delimiter}${qs}` : location;
     }
+    this.state.set(Controller.STATE_HEADERS, headers);
     await this.exit(302);
   }
 
@@ -220,7 +222,7 @@ export default class Controller {
    */
   async exit(code) {
     this.status = code;
-    this.#headerSent = true;
+    this.state.set(Controller.STATE_HEADER_SENT, true);
 
     //exit all mixins
     const { mixins } = this.constructor;
