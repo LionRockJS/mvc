@@ -12,6 +12,7 @@ export default class Controller {
   static STATE_ACTION = 'action';
   static STATE_FULL_ACTION_NAME = 'fullActionName';
   static STATE_EXITED = 'exited';
+  static STATE_BODY = 'body';
 
   //web controller states
   static STATE_REQUEST = 'request';
@@ -19,6 +20,7 @@ export default class Controller {
   static STATE_COOKIES = 'cookies';
   static STATE_HOSTNAME = 'hostname';
   static STATE_QUERY = 'query';
+  static STATE_STATUS = 'status';
 
   //web application states
   static STATE_PARAMS = 'params';
@@ -35,17 +37,6 @@ export default class Controller {
 
   // properties
   error = null;
-
-  body = '';
-
-  /**
-   *
-   * @type {{name: String, value: String, options: {secure:Boolean, maxAge:Number}}[]} cookies
-   */
-  #cookies = [];
-
-  status = 200;
-
   state = new Map();
 
   /**
@@ -61,10 +52,23 @@ export default class Controller {
     this.state.set(Controller.STATE_CLIENT, this);
     this.state.set(Controller.STATE_ACTION, params.action);
     this.state.set(Controller.STATE_EXITED, false);
+    this.state.set(Controller.STATE_BODY, '');
 
-    this.state.set(Controller.STATE_QUERY, query);
-    this.state.set(Controller.STATE_PARAMS, params);
     this.state.set(Controller.STATE_REQUEST, request);
+    this.state.set(Controller.STATE_HEADERS, {
+      "X-Content-Type-Options": "nosniff"
+    });
+    this.state.set(Controller.STATE_QUERY, query);
+    /**
+     *
+     * @type {{name: String, value: String, options: {secure:Boolean, maxAge:Number}}[]} cookies
+     */
+    const cookies = [];
+    this.state.set(Controller.STATE_COOKIES, cookies);
+    this.state.set(Controller.STATE_STATUS, 200);
+
+    this.state.set(Controller.STATE_PARAMS, params);
+
     this.state.set(Controller.STATE_LANGUAGE, params.language || query.language);
     this.state.set(Controller.STATE_CLIENT_IP, (!request?.headers) ? '0.0.0.0' : (
       request.headers['cf-connecting-ip']
@@ -75,12 +79,6 @@ export default class Controller {
     ));
     this.state.set(Controller.STATE_HOSTNAME, raw.hostname);
     this.state.set(Controller.STATE_CHECKPOINT, query.checkpoint || query.cp || null);
-
-    this.state.set(Controller.STATE_HEADERS, {
-      "X-Content-Type-Options": "nosniff"
-    });
-
-    this.state.set(Controller.STATE_COOKIES, this.#cookies);
 
     state.forEach((value, key) => {
       this.state.set(key, value);
@@ -120,10 +118,10 @@ export default class Controller {
     }
 
     return {
-      status: this.status,
-      body: this.body,
+      status: this.state.get(Controller.STATE_STATUS),
+      body: this.state.get(Controller.STATE_BODY),
       headers: this.state.get(Controller.STATE_HEADERS),
-      cookies: this.cookies,
+      cookies: this.state.get(Controller.STATE_COOKIES),
     };
   }
 
@@ -182,7 +180,7 @@ export default class Controller {
    * @param {string} msg
    */
   async #notFound(msg) {
-    this.body = `404 / ${msg}`;
+    this.state.set(Controller.STATE_BODY, `404 / ${msg}`);
     await this.exit(404);
   }
 
@@ -192,7 +190,8 @@ export default class Controller {
    */
   async #serverError(err) {
     this.error = err;
-    if (!this.body) this.body = err.message;
+    const body = this.state.get(Controller.STATE_BODY);
+    if (!body) this.state.set(Controller.STATE_BODY, err.message);
     await this.exit(500);
   }
 
@@ -220,7 +219,7 @@ export default class Controller {
    * @param {string} msg
    */
   async forbidden(msg = '') {
-    this.body = `403 / ${msg}`;
+    this.state.set(Controller.STATE_BODY, `403 / ${msg}`);
     await this.exit(403);
   }
 
@@ -229,7 +228,7 @@ export default class Controller {
    * @param {Number} code
    */
   async exit(code) {
-    this.status = code;
+    this.state.set(Controller.STATE_STATUS, code);
     this.state.set(Controller.STATE_EXITED, true);
 
     //exit all mixins

@@ -101,8 +101,8 @@ describe('test Controller', () => {
     }
 
     const ins = new Controller({});
-    await ins.execute();
-    expect(ins.body).toBe('');
+    const res = await ins.execute();
+    expect(res.body).toBe('');
 
     const ins2 = new C({});
     await ins2.execute();
@@ -155,8 +155,8 @@ describe('test Controller', () => {
 
   test('unknown action', async () => {
     const ins = new Controller({ params: { action: 'read' } });
-    await ins.execute();
-    expect(ins.status).toBe(404);
+    const res = await ins.execute();
+    expect(res.status).toBe(404);
   });
 
   test('server error', async () => {
@@ -165,9 +165,9 @@ describe('test Controller', () => {
     }
 
     const ins = new C({});
-    await ins.execute('error');
-    expect(ins.status).toBe(500);
-    expect(ins.body).toBe('Expected Error');
+    const res = await ins.execute('error');
+    expect(res.status).toBe(500);
+    expect(res.body).toBe('Expected Error');
   });
 
   test('server error with body', async () => {
@@ -175,36 +175,36 @@ describe('test Controller', () => {
       static mixins = [...TestController.mixins, TestMixin]
     }
     const ins = new C({});
-    ins.body = 'hello';
-    await ins.execute('error');
-    expect(ins.status).toBe(500);
-    expect(ins.body).toBe('hello');
+    ins.state.set(Controller.STATE_BODY, 'hello');
+    const res = await ins.execute('error');
+    expect(res.status).toBe(500);
+    expect(res.body).toBe('hello');
   });
 
   test('redirect', async () => {
     const ins = new Controller({});
     await ins.redirect('http://example.com');
-    expect(ins.status).toBe(302);
+    expect(ins.state.get(Controller.STATE_STATUS)).toBe(302);
   });
 
   test('forbidden', async () => {
     const ins = new Controller({});
     await ins.forbidden('No popo allowed');
-    expect(ins.status).toBe(403);
+    expect(ins.state.get(Controller.STATE_STATUS)).toBe(403);
   });
 
   test('not found default message', async () => {
     const ins = new Controller({});
-    await ins.execute('not_exist');
-    expect(ins.status).toBe(404);
-    expect(ins.body).toBe('404 / Controller::action_not_exist not found');
+    const res = await ins.execute('not_exist');
+    expect(res.status).toBe(404);
+    expect(res.body).toBe('404 / Controller::action_not_exist not found');
   });
 
   test('forbidden default message', async () => {
     const ins = new Controller({});
     await ins.forbidden();
-    expect(ins.body).toBe('403 / ');
-    expect(ins.status).toBe(403);
+    expect(ins.state.get(Controller.STATE_BODY)).toBe('403 / ');
+    expect(ins.state.get(Controller.STATE_STATUS)).toBe(403);
   });
 
   test('mixin this', async () => {
@@ -363,9 +363,9 @@ describe('test Controller', () => {
     const ins = new C({});
 
     await ins.forbidden('quit');
-    await ins.execute('test2');
+    const res = await ins.execute('test2');
 
-    expect(ins.status).toBe(403);
+    expect(res.status).toBe(403);
   });
 
   test('client IP', async () => {
