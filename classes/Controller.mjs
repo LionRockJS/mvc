@@ -7,19 +7,24 @@
  */
 
 export default class Controller {
+  //controller states
   static STATE_CLIENT = 'client';
-  static STATE_REQUEST = 'request';
-  static STATE_LANGUAGE = 'language';
-  static STATE_CLIENT_IP = 'clientIP';
-  static STATE_HOSTNAME = 'hostname';
-  static STATE_CHECKPOINT = 'checkpoint';
   static STATE_ACTION = 'action';
-  static STATE_QUERY = 'query';
-  static STATE_PARAMS = 'params';
-  static STATE_FULL_ACTION_NAME = 'full_action_name';
+  static STATE_FULL_ACTION_NAME = 'fullActionName';
+  static STATE_EXITED = 'exited';
+
+  //web controller states
+  static STATE_REQUEST = 'request';
   static STATE_HEADERS = 'headers';
-  static STATE_HEADER_SENT = 'sent';
   static STATE_COOKIES = 'cookies';
+  static STATE_HOSTNAME = 'hostname';
+  static STATE_QUERY = 'query';
+
+  //web application states
+  static STATE_PARAMS = 'params';
+  static STATE_CLIENT_IP = 'clientIP';
+  static STATE_CHECKPOINT = 'checkpoint';
+  static STATE_LANGUAGE = 'language';
 
   /**
    *
@@ -54,6 +59,9 @@ export default class Controller {
     const raw = request.raw || {};
 
     this.state.set(Controller.STATE_CLIENT, this);
+    this.state.set(Controller.STATE_ACTION, params.action);
+    this.state.set(Controller.STATE_EXITED, false);
+
     this.state.set(Controller.STATE_QUERY, query);
     this.state.set(Controller.STATE_PARAMS, params);
     this.state.set(Controller.STATE_REQUEST, request);
@@ -62,16 +70,16 @@ export default class Controller {
       request.headers['cf-connecting-ip']
       || request.headers['x-real-ip']
       || request.headers['x-forwarded-for']
-      || request.headers.remote_addr
+      || request.headers['remote_addr']
       || request.ip
     ));
     this.state.set(Controller.STATE_HOSTNAME, raw.hostname);
     this.state.set(Controller.STATE_CHECKPOINT, query.checkpoint || query.cp || null);
-    this.state.set(Controller.STATE_ACTION, params.action);
+
     this.state.set(Controller.STATE_HEADERS, {
       "X-Content-Type-Options": "nosniff"
     });
-    this.state.set(Controller.STATE_HEADER_SENT, false);
+
     this.state.set(Controller.STATE_COOKIES, this.#cookies);
 
     state.forEach((value, key) => {
@@ -94,19 +102,19 @@ export default class Controller {
       if (this[action] === undefined) await this.#handleActionNotFound(action);
 
       // stage 0 : setup
-      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.#mixinsSetup();
+      if (!this.state.get(Controller.STATE_EXITED)) await this.#mixinsSetup();
 
       // stage 1 : before
-      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.#mixinsBefore();
-      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.before();
+      if (!this.state.get(Controller.STATE_EXITED)) await this.#mixinsBefore();
+      if (!this.state.get(Controller.STATE_EXITED)) await this.before();
 
       // stage 2 : action
-      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.mixinsAction(action);
-      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this[action]();
+      if (!this.state.get(Controller.STATE_EXITED)) await this.mixinsAction(action);
+      if (!this.state.get(Controller.STATE_EXITED)) await this[action]();
 
       // stage 3 : after
-      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.#mixinsAfter();
-      if (!this.state.get(Controller.STATE_HEADER_SENT)) await this.after();
+      if (!this.state.get(Controller.STATE_EXITED)) await this.#mixinsAfter();
+      if (!this.state.get(Controller.STATE_EXITED)) await this.after();
     } catch (err) {
       await this.#serverError(err);
     }
@@ -141,7 +149,7 @@ export default class Controller {
   async #loopMixins(lambda) {
     const { mixins } = this.constructor;
     for (let i = 0; i < mixins.length; i++) {
-      if (this.state.get(Controller.STATE_HEADER_SENT)) break;
+      if (this.state.get(Controller.STATE_EXITED)) break;
       // eslint-disable-next-line no-await-in-loop
       await lambda(mixins[i]);
     }
@@ -222,7 +230,7 @@ export default class Controller {
    */
   async exit(code) {
     this.status = code;
-    this.state.set(Controller.STATE_HEADER_SENT, true);
+    this.state.set(Controller.STATE_EXITED, true);
 
     //exit all mixins
     const { mixins } = this.constructor;
