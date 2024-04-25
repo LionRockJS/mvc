@@ -60,7 +60,7 @@ export default class Controller {
     });
     this.state.set(Controller.STATE_QUERY, query);
     /**
-     *
+     * cookie to set
      * @type {{name: String, value: String, options: {secure:Boolean, maxAge:Number}}[]} cookies
      */
     const cookies = [];
