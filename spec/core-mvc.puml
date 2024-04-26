@@ -1,7 +1,7 @@
 @startuml
 skinparam monochrome true
 skinparam shadowing false
-skinparam defaultFontName "URW DIN SemiCond"
+skinparam defaultFontName "Barlow Semi Condensed"
 skinparam defaultFontSize 14
 skinparam roundcorner 10
 skinparam classAttributeIconSize 0

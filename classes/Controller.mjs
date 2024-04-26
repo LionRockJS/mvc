@@ -191,7 +191,7 @@ export default class Controller {
   async #serverError(err) {
     this.error = err;
     const body = this.state.get(Controller.STATE_BODY);
-    if (!body) this.state.set(Controller.STATE_BODY, err.message);
+    if (!body) this.state.set(Controller.STATE_BODY, err.message || '500 / Internal Server Error');
     await this.exit(500);
   }
 
