@@ -25,6 +25,7 @@ export default class Controller {
   //web application states
   static STATE_PARAMS = 'params';
   static STATE_CLIENT_IP = 'clientIP';
+  static STATE_USER_AGENT = 'userAgent';
   static STATE_CHECKPOINT = 'checkpoint';
   static STATE_LANGUAGE = 'language';
 
@@ -64,6 +65,7 @@ export default class Controller {
      * @type {{name: String, value: String, options: {secure:Boolean, maxAge:Number}}[]} cookies
      */
     const cookies = [];
+    const reqHeaders = request?.headers || {};
     this.state.set(Controller.STATE_COOKIES, cookies);
     this.state.set(Controller.STATE_STATUS, 200);
 
@@ -71,12 +73,15 @@ export default class Controller {
 
     this.state.set(Controller.STATE_LANGUAGE, params.language || query.language);
     this.state.set(Controller.STATE_CLIENT_IP, (!request?.headers) ? '0.0.0.0' : (
-      request.headers['cf-connecting-ip']
-      || request.headers['x-real-ip']
-      || request.headers['x-forwarded-for']
-      || request.headers['remote_addr']
+      reqHeaders['cf-connecting-ip']
+      || reqHeaders['x-real-ip']
+      || reqHeaders['x-forwarded-for']
+      || reqHeaders['remote_addr']
       || request.ip
+      || '0.0.0.0'
     ));
+
+    this.state.set(Controller.STATE_USER_AGENT, reqHeaders['user-agent'] || '');
     this.state.set(Controller.STATE_HOSTNAME, raw.hostname);
     this.state.set(Controller.STATE_CHECKPOINT, query.checkpoint || query.cp || null);
 
