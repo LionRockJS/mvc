@@ -19,13 +19,13 @@ export default class View {
     this.caches = {};
   }
 
-  constructor(file, data) {
+  constructor(file="", data={}) {
     this.file = file;
     this.data = data;
   }
 
   async render() {
-    return JSON.stringify(this.data);
+    return this.data;
   }
 }
 
