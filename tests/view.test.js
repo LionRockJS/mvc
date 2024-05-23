@@ -5,7 +5,8 @@ describe('test View', () => {
   test('factory', async () => {
     const tpl = View.factory('student', { name: 'Alice' });
     const output = await tpl.render();
-    expect(JSON.parse(output).name).toBe('Alice');
+
+    expect(output.name).toBe('Alice');
   });
 
   test('direct assign variable to view', async () => {
@@ -14,13 +15,13 @@ describe('test View', () => {
     tpl.data.club = 'art';
 
     const output = await tpl.render();
-    expect(JSON.parse(output).club).toBe('art');
+    expect(output.club).toBe('art');
   });
 
   test('view', async () => {
     const tpl = new View('student', { name: 'Alice' });
     const output = await tpl.render();
-    expect(JSON.parse(output).name).toBe('Alice');
+    expect(output.name).toBe('Alice');
   });
 
   test('cache', async () => {
