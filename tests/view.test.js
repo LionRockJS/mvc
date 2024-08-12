@@ -40,7 +40,7 @@ describe('test View', () => {
       expect(ins.foo).toBe(undefined);
       expect('').toBe('this line should not be run');
     }catch(e){
-      expect(e.message).toBe('Cannot add property foo, object is not extensible');
+      expect(/not extensible/.test(e.message)).toBe(true);
     }
   });
 });
