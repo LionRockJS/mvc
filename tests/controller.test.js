@@ -3,7 +3,13 @@ import ControllerMixin from '../classes/ControllerMixin';
 
 class TestController extends Controller {
   // eslint-disable-next-line class-methods-use-this
-  async action_error() {}
+  async action_error() {
+    throw new Error('test error');
+  }
+
+  async action_error2(){
+    throw new Error();
+  }
 }
 
 class TestMixin extends ControllerMixin {
@@ -179,6 +185,18 @@ describe('test Controller', () => {
     const res = await ins.execute('error');
     expect(res.status).toBe(500);
     expect(res.body).toBe('hello');
+  });
+
+  test('server error without body', async () => {
+    const ins = new TestController({});
+    const res = await ins.execute('error');
+    expect(res.status).toBe(500);
+    expect(res.body).toBe('test error');
+
+    const ins2 = new TestController({});
+    const res2 = await ins2.execute('error2');
+    expect(res2.status).toBe(500);
+    expect(res2.body).toBe('500 / Internal Server Error');
   });
 
   test('redirect', async () => {
@@ -588,4 +606,29 @@ describe('test Controller', () => {
 
     expect(c.state.get('foo')).toBe('bar');
   })
+
+  test('coverage, client ip', async () => {
+    const c0 = new Controller({
+      headers:{
+      }
+    });
+    await c0.execute();
+    expect(c0.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.0');
+
+    const c1 = new Controller({
+      headers:{
+        'cf-connecting-ip': '666.777.888.999',
+      }
+    });
+    await c1.execute();
+    expect(c1.state.get(Controller.STATE_CLIENT_IP)).toBe('666.777.888.999');
+
+    const c2 = new Controller({
+      headers:{
+        'x-real-ip': '622.722.822.922',
+      }
+    });
+    await c2.execute();
+    expect(c2.state.get(Controller.STATE_CLIENT_IP)).toBe('622.722.822.922');
+  });
 });

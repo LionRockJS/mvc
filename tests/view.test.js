@@ -43,4 +43,11 @@ describe('test View', () => {
       expect(/not extensible/.test(e.message)).toBe(true);
     }
   });
+
+  test('view coverage', async () => {
+    const v = new View();
+    expect(v.file).toBe('');
+    expect(v.defaultFile).toBe('');
+    expect(JSON.stringify(v.data)).toBe('{}');
+  });
 });

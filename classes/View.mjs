@@ -19,9 +19,10 @@ export default class View {
     this.caches = {};
   }
 
-  constructor(file="", data={}) {
+  constructor(file="", data={}, defaultFile="") {
     this.file = file;
     this.data = data;
+    this.defaultFile = defaultFile;
   }
 
   async render() {
