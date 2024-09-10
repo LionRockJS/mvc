@@ -1,5 +1,5 @@
-import Controller from '../classes/Controller';
-import ControllerMixin from '../classes/ControllerMixin';
+import Controller from '../classes/Controller.mjs';
+import ControllerMixin from '../classes/ControllerMixin.mjs';
 
 class TestController extends Controller {
   // eslint-disable-next-line class-methods-use-this

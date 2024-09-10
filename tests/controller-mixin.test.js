@@ -1,5 +1,5 @@
-import Controller from '../classes/Controller';
-import ControllerMixin from '../classes/ControllerMixin';
+import Controller from '../classes/Controller.mjs';
+import ControllerMixin from '../classes/ControllerMixin.mjs';
 
 class MA extends ControllerMixin {
   static async setup(state) {
