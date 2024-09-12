@@ -16,6 +16,9 @@ export default class Controller {
 
   //web controller states
   static STATE_REQUEST = 'request';
+  static STATE_REQUEST_BODY = 'requestBody';
+  static STATE_REQUEST_HEADERS = 'requestHeader';
+  static STATE_REQUEST_COOKIES = 'requestCookie';
   static STATE_HEADERS = 'headers';
   static STATE_COOKIES = 'cookies';
   static STATE_HOSTNAME = 'hostname';
@@ -56,6 +59,10 @@ export default class Controller {
     this.state.set(Controller.STATE_BODY, '');
 
     this.state.set(Controller.STATE_REQUEST, request);
+    this.state.set(Controller.STATE_REQUEST_BODY, request.body);
+    this.state.set(Controller.STATE_REQUEST_HEADERS, request.headers);
+    this.state.set(Controller.STATE_REQUEST_COOKIES, request.cookies);
+
     this.state.set(Controller.STATE_HEADERS, {
       "X-Content-Type-Options": "nosniff"
     });
