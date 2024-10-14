@@ -129,12 +129,16 @@ export default class Controller {
       await this.#serverError(err);
     }
 
-    return {
+    const result = {
       status: this.state.get(Controller.STATE_STATUS),
       body: this.state.get(Controller.STATE_BODY),
       headers: this.state.get(Controller.STATE_HEADERS),
       cookies: this.state.get(Controller.STATE_COOKIES),
     };
+
+    this.state.clear();
+
+    return result;
   }
 
   async #handleActionNotFound(action) {
