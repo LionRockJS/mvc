@@ -102,9 +102,10 @@ export default class Controller {
   /**
    *
    * @param {string | null} actionName
+   * @param {boolean} retainState
    * @returns {object}
    */
-  async execute(actionName = null) {
+  async execute(actionName = null, retainState = false) {
     try {
       // guard check function action_* exist
       const action = `action_${actionName || this.state.get(Controller.STATE_ACTION) || 'index'}`;
@@ -136,8 +137,8 @@ export default class Controller {
       cookies: this.state.get(Controller.STATE_COOKIES),
     };
 
-    this.state.clear();
-
+    //clear state to prevent memory leak
+    if(!retainState) this.state.clear();
     return result;
   }
 
