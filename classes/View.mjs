@@ -9,14 +9,8 @@
 export default class View {
   static DefaultViewClass = View;
 
-  static caches = {}
-
   static factory(file, data = {}) {
     return new this.DefaultViewClass(file, data);
-  }
-
-  static clearCache() {
-    this.caches = {};
   }
 
   constructor(file="", data={}, defaultFile="") {

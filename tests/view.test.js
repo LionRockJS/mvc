@@ -24,11 +24,6 @@ describe('test View', () => {
     expect(output.name).toBe('Alice');
   });
 
-  test('cache', async () => {
-    View.clearCache();
-    expect(JSON.stringify(View.caches)).toBe('{}');
-  });
-
   test('view base class cannot be freeze', async () => {
 
   });

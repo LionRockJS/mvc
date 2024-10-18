@@ -242,7 +242,7 @@ describe('test Controller', () => {
     const ins = new C({});
     ins.action_test1 = async () => {};
 
-    await ins.execute('test1');
+    await ins.execute('test1', true);
 
     expect(ins.state.get('name')).toBe('hello 1');
   });
@@ -254,7 +254,7 @@ describe('test Controller', () => {
 
     const ins = new C({});
     ins.action_test2 = async () => {};
-    await ins.execute('test2');
+    await ins.execute('test2', true);
 
     expect(ins.state.get('name')).toBe('hello 2');
   });
@@ -285,7 +285,7 @@ describe('test Controller', () => {
       await ins.mixinsAction('action_test2');
     };
 
-    await ins.execute('test4');
+    await ins.execute('test4', true);
 
     expect(ins.state.get('name')).toBe('hello 2');
   });
@@ -298,7 +298,7 @@ describe('test Controller', () => {
 
     const ins = new C({});
 
-    await ins.execute('test2');
+    await ins.execute('test2', true);
 
     expect(ins.state.get('name')).toBe('hello 2');
   });
@@ -356,7 +356,7 @@ describe('test Controller', () => {
     }
 
     const ins = new C({});
-    await ins.execute('test2');
+    await ins.execute('test2', true);
 
     expect(ins.state.get('name')).toBe('hello 2');
   });
@@ -368,7 +368,7 @@ describe('test Controller', () => {
     }
 
     const ins = new C({});
-    await ins.execute('test2');
+    await ins.execute('test2', true);
 
     expect(ins.state.get('name')).toBe('hello 2');
   });
@@ -388,27 +388,27 @@ describe('test Controller', () => {
 
   test('client IP', async () => {
     const c = new Controller({});
-    await c.execute();
+    await c.execute(null, true);
     expect(c.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.0');
 
     const c1 = new Controller({ headers: { 'cf-connecting-ip': '0.0.0.1' } });
-    await c1.execute();
+    await c1.execute(null, true);
     expect(c1.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.1');
 
     const c2 = new Controller({ headers: { 'x-real-ip': '0.0.0.2' } });
-    await c2.execute();
+    await c2.execute(null, true);
     expect(c2.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.2');
 
     const c3 = new Controller({ headers: { 'x-forwarded-for': '0.0.0.3' } });
-    await c3.execute();
+    await c3.execute(null, true);
     expect(c3.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.3');
 
     const c4 = new Controller({ headers: { remote_addr: '0.0.0.4' } });
-    await c4.execute();
+    await c4.execute(null, true);
     expect(c4.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.4');
 
     const c5 = new Controller({ headers: {}, ip: '0.0.0.5' });
-    await c5.execute();
+    await c5.execute(null, true);
     expect(c5.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.5');
   });
 
@@ -464,30 +464,30 @@ describe('test Controller', () => {
     }
 
     const b0 = new B({});
-    await b0.execute();
+    await b0.execute(null,true);
     expect(b0.value).toBe(2);
 
     const c0 = new C({});
-    await c0.execute();
+    await c0.execute(null,true);
     expect(c0.value).toBe(4);
 
     const c1 = new C({});
-    await c1.execute();
+    await c1.execute(null,true);
     expect(c1.value).toBe(4);
 
     const b1 = new B({});
-    await b1.execute();
+    await b1.execute(null,true);
     expect(b1.value).toBe(2);
 
-    await b0.execute('foo');
+    await b0.execute('foo',true);
     expect(b0.foo).toBe(true);
-    await b1.execute('bar');
+    await b1.execute('bar',true);
 
     expect(b1.bar).toBe(false);
 
-    await c0.execute('foo');
+    await c0.execute('foo',true);
     expect(c0.foo).toBe(true);
-    await c1.execute('bar');
+    await c1.execute('bar',true);
     expect(c1.bar).toBe(true);
   });
 
@@ -534,7 +534,7 @@ describe('test Controller', () => {
     }
 
     const c = new TestRedirectController({query:{utm_source: "test"}});
-    await c.execute();
+    await c.execute(null,true);
 
     expect(c.state.get(Controller.STATE_HEADERS).location).toBe('https://example.com?utm_source=test');
   })
@@ -548,7 +548,7 @@ describe('test Controller', () => {
     }
 
     const c = new TestRedirectController({query:{utm_source: "test"}});
-    await c.execute();
+    await c.execute(null,true);
 
     expect(c.state.get(Controller.STATE_HEADERS).location).toBe('https://example.com?target=1&utm_source=test');
   })
@@ -562,7 +562,7 @@ describe('test Controller', () => {
     }
 
     const c = new TestRedirectController({query:{}});
-    await c.execute();
+    await c.execute(null,true);
 
     expect(c.state.get(Controller.STATE_HEADERS).location).toBe('https://example.com?target=1');
   })
@@ -570,23 +570,23 @@ describe('test Controller', () => {
   test('coverage, test action name', async () => {
     //default
     const c1 = new Controller({});
-    await c1.execute();
+    await c1.execute(null,true);
     expect(c1.state.get(Controller.STATE_FULL_ACTION_NAME)).toBe('action_index');
     expect(c1.state.get(Controller.STATE_ACTION)).toBe(undefined);
 
     //from request
     const c2 = new Controller({params: {action: 'foo'}});
-    await c2.execute();
+    await c2.execute(null,true);
     expect(c2.state.get(Controller.STATE_FULL_ACTION_NAME)).toBe('action_foo');
 
     //direct access
     const c3 = new Controller({});
-    await c3.execute('bar');
+    await c3.execute('bar',true);
     expect(c3.state.get(Controller.STATE_FULL_ACTION_NAME)).toBe('action_bar');
 
     //direct access, with request action
     const c4 = new Controller({params: {action: 'foo'}});
-    await c4.execute('tar');
+    await c4.execute('tar',true);
     expect(c4.state.get(Controller.STATE_FULL_ACTION_NAME)).toBe('action_tar');
   });
 
@@ -602,7 +602,7 @@ describe('test Controller', () => {
     }
 
     const c = new TestPreStateController({query:{}});
-    await c.execute();
+    await c.execute(null,true);
 
     expect(c.state.get('foo')).toBe('bar');
   })
@@ -612,7 +612,7 @@ describe('test Controller', () => {
       headers:{
       }
     });
-    await c0.execute();
+    await c0.execute(null,true);
     expect(c0.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.0');
 
     const c1 = new Controller({
@@ -620,7 +620,7 @@ describe('test Controller', () => {
         'cf-connecting-ip': '666.777.888.999',
       }
     });
-    await c1.execute();
+    await c1.execute(null,true);
     expect(c1.state.get(Controller.STATE_CLIENT_IP)).toBe('666.777.888.999');
 
     const c2 = new Controller({
@@ -628,7 +628,7 @@ describe('test Controller', () => {
         'x-real-ip': '622.722.822.922',
       }
     });
-    await c2.execute();
+    await c2.execute(null,true);
     expect(c2.state.get(Controller.STATE_CLIENT_IP)).toBe('622.722.822.922');
   });
 });
