@@ -4,7 +4,7 @@ skinparam shadowing false
 skinparam defaultFontName "Barlow Semi Condensed"
 skinparam defaultFontSize 14
 
-title LionRockJS Controller Flow
+title Controller Flow
 
 start
 :request<
