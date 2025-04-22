@@ -82,6 +82,7 @@ export default class Controller {
     this.state.set(Controller.STATE_CLIENT_IP, (!request?.headers) ? '0.0.0.0' : (
       reqHeaders['cf-connecting-ip']
       || reqHeaders['x-real-ip']
+      || reqHeaders['x-real_ip']
       || reqHeaders['x-forwarded-for']
       || reqHeaders['remote_addr']
       || request.ip
