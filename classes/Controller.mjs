@@ -63,8 +63,15 @@ export default class Controller {
     this.state.set(Controller.STATE_REQUEST_HEADERS, request.headers);
     this.state.set(Controller.STATE_REQUEST_COOKIES, request.cookies);
 
+    let origin = request.headers?.origin || request.headers?.host || "*";
+    if(/^http/.test(origin) === false && origin !== "*"){
+      origin = `https://${origin}`;
+    }
+
     this.state.set(Controller.STATE_HEADERS, {
-      "X-Content-Type-Options": "nosniff"
+      "X-Content-Type-Options": "nosniff",
+      "Access-Control-Allow-Origin": origin,
+      "content-security-policy": "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; upgrade-insecure-requests;"
     });
     this.state.set(Controller.STATE_QUERY, query);
     /**

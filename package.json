@@ -1,6 +1,6 @@
 {
   "name": "@lionrockjs/mvc",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "description": "Controller and View module for LionRockJS",
   "main": "index.js",
   "type": "module",
