@@ -1,9 +1,9 @@
 {
   "name": "@lionrockjs/mvc",
-  "version": "0.0.13",
+  "version": "0.1.0",
   "description": "Controller and View module for LionRockJS",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "classes/index.js",
   "types": "types/index.d.ts",
   "repository": {
     "type": "git",

@@ -13,40 +13,40 @@ export default class ControllerMixin {
    * it runs before concrete controller's constructor
    * @param {Map} state
    */
-  static init(state) {/***/}
+  static init(state: Map<string, any>): void {/***/}
 
   /**
    * Setup is initializer for async functions, it runs in controller.execute() before state
    * @param state
    * @returns {Promise<void>}
    */
-  static async setup(state) {/***/}
+  static async setup(state: Map<string, any>): Promise<void> {/***/}
 
   /**
    *
    * @param {Map} state
    */
-  static async before(state) {/***/}
+  static async before(state: Map<string, any>): Promise<void> {/***/}
 
   /**
    * @param {String} fullActionName
    * @param {Map} state
    */
-  static async execute(fullActionName, state) {
-    if (!this[fullActionName]) return;
-    await this[fullActionName](state);
+  static async execute(fullActionName: string, state: Map<string, any>): Promise<void> {
+    if (!(this as any)[fullActionName]) return;
+    await (this as any)[fullActionName](state);
   }
 
   /**
    *
    * @param {Map} state
    */
-  static async after(state) {/***/}
+  static async after(state: Map<string, any>): Promise<void> {/***/}
 
   /**
    * @param {Map} state
    */
-  static async exit(state) {/***/}
+  static async exit(state: Map<string, any>): Promise<void> {/***/}
 }
 
 Object.freeze(ControllerMixin.prototype);

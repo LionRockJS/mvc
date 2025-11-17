@@ -6,6 +6,35 @@
  *
  */
 
+import type ControllerMixin from './ControllerMixin.mjs';
+
+export interface Request {
+  query?: Record<string, any>;
+  params?: Record<string, any>;
+  raw?: {
+    hostname?: string;
+  };
+  body?: any;
+  headers?: Record<string, string>;
+  cookies?: Record<string, string>;
+  ip?: string;
+}
+
+export interface ControllerResult {
+  status: number;
+  body: string;
+  headers: Record<string, string>;
+  cookies: Array<{
+    name: string;
+    value: string;
+    options: {
+      secure?: boolean;
+      maxAge?: number;
+      [key: string]: any;
+    };
+  }>;
+}
+
 export default class Controller {
   //controller states
   static STATE_CLIENT = 'client';
@@ -36,19 +65,19 @@ export default class Controller {
    *
    * @type {ControllerMixin[]}
    */
-  static mixins = [];
+  static mixins: typeof ControllerMixin[] = [];
   static suppressActionNotFound = false;
 
   // properties
-  error = null;
-  state = new Map();
+  error: Error | null = null;
+  state = new Map<string, any>();
 
   /**
    *
    * @param {Request} request
    * @param {Map} state
    */
-  constructor(request, state = new Map()) {
+  constructor(request: Request, state = new Map<string, any>()) {
     const query = request.query || {};
     const params = request.params || {};
     const raw = request.raw || {};
@@ -69,7 +98,15 @@ export default class Controller {
      * cookie to set
      * @type {{name: String, value: String, options: {secure:Boolean, maxAge:Number}}[]} cookies
      */
-    const cookies = [];
+    const cookies: Array<{
+      name: string;
+      value: string;
+      options: {
+        secure?: boolean;
+        maxAge?: number;
+        [key: string]: any;
+      };
+    }> = [];
     const reqHeaders = request?.headers || {};
     this.state.set(Controller.STATE_COOKIES, cookies);
     this.state.set(Controller.STATE_STATUS, 200);
@@ -95,7 +132,7 @@ export default class Controller {
       this.state.set(key, value);
     });
 
-    this.constructor.mixins.forEach(mixin => mixin.init(this.state));
+    (this.constructor as typeof Controller).mixins.forEach(mixin => mixin.init(this.state));
   }
 
   /**
@@ -104,12 +141,12 @@ export default class Controller {
    * @param {boolean} retainState
    * @returns {object}
    */
-  async execute(actionName = null, retainState = false) {
+  async execute(actionName: string | null = null, retainState = false): Promise<ControllerResult> {
     try {
       // guard check function action_* exist
       const action = `action_${actionName || this.state.get(Controller.STATE_ACTION) || 'index'}`;
       this.state.set(Controller.STATE_FULL_ACTION_NAME, action);
-      if (this[action] === undefined) await this.#handleActionNotFound(action);
+      if ((this as any)[action] === undefined) await this.#handleActionNotFound(action);
 
       // stage 0 : setup
       if (!this.state.get(Controller.STATE_EXITED)) await this.#mixinsSetup();
@@ -120,16 +157,16 @@ export default class Controller {
 
       // stage 2 : action
       if (!this.state.get(Controller.STATE_EXITED)) await this.mixinsAction(action);
-      if (!this.state.get(Controller.STATE_EXITED)) await this[action]();
+      if (!this.state.get(Controller.STATE_EXITED)) await (this as any)[action]();
 
       // stage 3 : after
       if (!this.state.get(Controller.STATE_EXITED)) await this.#mixinsAfter();
       if (!this.state.get(Controller.STATE_EXITED)) await this.after();
     } catch (err) {
-      await this.#serverError(err);
+      await this.#serverError(err as Error);
     }
 
-    const result = {
+    const result: ControllerResult = {
       status: this.state.get(Controller.STATE_STATUS),
       body: this.state.get(Controller.STATE_BODY),
       headers: this.state.get(Controller.STATE_HEADERS),
@@ -141,9 +178,9 @@ export default class Controller {
     return result;
   }
 
-  async #handleActionNotFound(action) {
-    if (this.constructor.suppressActionNotFound) {
-      this[action] = async () => {/***/};
+  async #handleActionNotFound(action: string): Promise<void> {
+    if ((this.constructor as typeof Controller).suppressActionNotFound) {
+      (this as any)[action] = async () => {/***/};
       return;
     }
 
@@ -160,8 +197,8 @@ export default class Controller {
    * @param {MixinCallback} lambda
    * @returns {Promise<void>}
    */
-  async #loopMixins(lambda) {
-    const { mixins } = this.constructor;
+  async #loopMixins(lambda: (mixin: typeof ControllerMixin) => Promise<void>): Promise<void> {
+    const { mixins } = this.constructor as typeof Controller;
     for (let i = 0; i < mixins.length; i++) {
       if (this.state.get(Controller.STATE_EXITED)) break;
       // eslint-disable-next-line no-await-in-loop
@@ -169,33 +206,33 @@ export default class Controller {
     }
   }
 
-  async #mixinsSetup() {
+  async #mixinsSetup(): Promise<void> {
     await this.#loopMixins(async mixin => mixin.setup(this.state));
   }
 
-  async #mixinsBefore() {
+  async #mixinsBefore(): Promise<void> {
     await this.#loopMixins(async mixin => mixin.before(this.state));
   }
 
-  async before() {/***/}
+  async before(): Promise<void> {/***/}
 
-  async mixinsAction(fullActionName) {
+  async mixinsAction(fullActionName: string): Promise<void> {
     await this.#loopMixins(async mixin => mixin.execute(fullActionName, this.state));
   }
 
-  async action_index() {/***/}
+  async action_index(): Promise<void> {/***/}
 
-  async #mixinsAfter() {
+  async #mixinsAfter(): Promise<void> {
     await this.#loopMixins(async mixin => mixin.after(this.state));
   }
 
-  async after() {/***/}
+  async after(): Promise<void> {/***/}
 
   /**
    *
    * @param {string} msg
    */
-  async #notFound(msg) {
+  async #notFound(msg: string): Promise<void> {
     this.state.set(Controller.STATE_BODY, `404 / ${msg}`);
     await this.exit(404);
   }
@@ -204,7 +241,7 @@ export default class Controller {
    *
    * @param {Error} err
    */
-  async #serverError(err) {
+  async #serverError(err: Error): Promise<void> {
     this.error = err;
     const body = this.state.get(Controller.STATE_BODY);
     if (!body) this.state.set(Controller.STATE_BODY, err.message || '500 / Internal Server Error');
@@ -216,7 +253,7 @@ export default class Controller {
    * @param {string} location
    * @param {boolean} keepQueryString
    */
-  async redirect(location, keepQueryString= false) {
+  async redirect(location: string, keepQueryString = false): Promise<void> {
     const headers = this.state.get(Controller.STATE_HEADERS);
     if(!keepQueryString){
       headers.location = location;
@@ -234,7 +271,7 @@ export default class Controller {
    *
    * @param {string} msg
    */
-  async forbidden(msg = '') {
+  async forbidden(msg = ''): Promise<void> {
     this.state.set(Controller.STATE_BODY, `403 / ${msg}`);
     await this.exit(403);
   }
@@ -243,19 +280,19 @@ export default class Controller {
    *
    * @param {Number} code
    */
-  async exit(code) {
+  async exit(code: number): Promise<void> {
     this.state.set(Controller.STATE_STATUS, code);
     this.state.set(Controller.STATE_EXITED, true);
 
     //exit all mixins
-    const { mixins } = this.constructor;
+    const { mixins } = this.constructor as typeof Controller;
     await Promise.all(mixins.map(async mixin => mixin.exit(this.state)));
 
     //run delegate onExit
     await this.onExit();
   }
 
-  async onExit(){}
+  async onExit(): Promise<void> {}
 }
 
 Object.freeze(Controller.prototype);

@@ -7,19 +7,23 @@
  */
 
 export default class View {
-  static DefaultViewClass = View;
+  static DefaultViewClass: typeof View = View;
 
-  static factory(file, data = {}) {
+  file: string;
+  data: Record<string, any>;
+  defaultFile: string;
+
+  static factory(file: string, data: Record<string, any> = {}): View {
     return new this.DefaultViewClass(file, data);
   }
 
-  constructor(file="", data={}, defaultFile="") {
+  constructor(file = "", data: Record<string, any> = {}, defaultFile = "") {
     this.file = file;
     this.data = data;
     this.defaultFile = defaultFile;
   }
 
-  async render() {
+  async render(): Promise<Record<string, any>> {
     return this.data;
   }
 }
