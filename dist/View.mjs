@@ -22,3 +22,4 @@ export default class View {
         return this.data;
     }
 }
+Object.freeze(View.prototype);

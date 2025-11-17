@@ -179,3 +179,4 @@ export default class Controller {
     }
     async onExit() { }
 }
+Object.freeze(Controller.prototype);

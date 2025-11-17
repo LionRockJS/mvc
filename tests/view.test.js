@@ -1,4 +1,4 @@
-import View from '../classes/View.mjs';
+import View from '../dist/View.mjs';
 
 describe('test View', () => {
 
