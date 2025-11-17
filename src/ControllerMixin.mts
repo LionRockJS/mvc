@@ -33,5 +33,3 @@ export default class ControllerMixin {
 
   static async exit(state: Map<string, any>): Promise<void> {/***/}
 }
-
-Object.freeze(ControllerMixin.prototype);

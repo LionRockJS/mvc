@@ -6,7 +6,7 @@
  *
  */
 
-import ControllerMixin from './ControllerMixin.js';
+import ControllerMixin from './ControllerMixin.mjs';
 
 export interface RequestHeaders {
   [key: string]: string | string[] | undefined;
@@ -267,5 +267,3 @@ export default class Controller {
 
   async onExit(): Promise<void> {}
 }
-
-Object.freeze(Controller.prototype);

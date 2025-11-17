@@ -1,26 +1,11 @@
 {
   "name": "@lionrockjs/mvc",
-  "version": "0.0.13",
+  "version": "2.0.0",
   "description": "Controller and View module for LionRockJS",
-  "main": "index.js",
+  "module": "src/index.ts",
   "type": "module",
-  "scripts": {
-    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage"
-  },
-  "jest": {
-    "verbose": true,
-    "transform": {},
-    "testMatch": [
-      "**/__tests__/**/*.[jt]s?(x)",
-      "**/?(*.)+(spec|test).[jt]s?(x)",
-      "**/?(*.)+(spec|test).mjs"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "jsx",
-      "mjs"
-    ]
-  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LionRockJS/mvc.git"

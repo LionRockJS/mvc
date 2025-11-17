@@ -1,10 +1,14 @@
 {
-    "compilerOptions": {
-        "outDir": "./dist",
-        "declaration": true,
-        "strict": true,
-        "module": "ESNext",
-        "target": "ESNext"
-    },
-    "include": ["src/**/*"]
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "declaration": true, // crucial for generating .d.ts files
+    "outDir": "./dist",
+    "declarationDir": "./types",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*.ts", "src/Controller.mts", "src/ControllerMixin.mts", "src/View.mts"]
 }
