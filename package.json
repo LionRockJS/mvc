@@ -5,7 +5,7 @@
   "module": "src/index.ts",
   "type": "module",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LionRockJS/mvc.git"
