@@ -12,5 +12,5 @@ export default class View {
     defaultFile: string;
     static factory(file: string, data?: Record<string, any>): View;
     constructor(file?: string, data?: Record<string, any>, defaultFile?: string);
-    render(): Promise<Record<string, any>>;
+    render(): Promise<string | any>;
 }

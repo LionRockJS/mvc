@@ -23,7 +23,7 @@ export default class View {
     this.defaultFile = defaultFile;
   }
 
-  async render(): Promise<Record<string, any>> {
+  async render(): Promise<string | any> {
     return this.data;
   }
 }
