@@ -1,6 +1,6 @@
 {
   "name": "@lionrockjs/mvc",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "description": "Controller and View module for LionRockJS",
   "type": "module",
   "main": "classes/index.js",
@@ -15,10 +15,19 @@
     "Controller",
     "ControllerMixin"
   ],
-  "author": "Kojin Nakana",
+  "author": "Colin Leung",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/LionRockJS/mvc/issues"
   },
-  "homepage": "https://github.com/LionRockJS/mvc#readme"
+  "homepage": "https://github.com/LionRockJS/mvc#readme",
+  "scripts": {
+    "test": "bun test",
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/bun": "latest"
+  }
 }
