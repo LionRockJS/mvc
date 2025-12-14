@@ -5,29 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+export var ControllerState;
+(function (ControllerState) {
+    ControllerState["CLIENT"] = "client";
+    ControllerState["ACTION"] = "action";
+    ControllerState["FULL_ACTION_NAME"] = "fullActionName";
+    ControllerState["EXITED"] = "exited";
+    ControllerState["BODY"] = "body";
+    ControllerState["REQUEST"] = "request";
+    ControllerState["REQUEST_BODY"] = "requestBody";
+    ControllerState["REQUEST_HEADERS"] = "requestHeader";
+    ControllerState["REQUEST_COOKIES"] = "requestCookie";
+    ControllerState["HEADERS"] = "headers";
+    ControllerState["COOKIES"] = "cookies";
+    ControllerState["HOSTNAME"] = "hostname";
+    ControllerState["QUERY"] = "query";
+    ControllerState["STATUS"] = "status";
+    ControllerState["PARAMS"] = "params";
+    ControllerState["CLIENT_IP"] = "clientIP";
+    ControllerState["USER_AGENT"] = "userAgent";
+    ControllerState["CHECKPOINT"] = "checkpoint";
+    ControllerState["LANGUAGE"] = "language";
+})(ControllerState || (ControllerState = {}));
 export default class Controller {
     //controller states
-    static STATE_CLIENT = 'client';
-    static STATE_ACTION = 'action';
-    static STATE_FULL_ACTION_NAME = 'fullActionName';
-    static STATE_EXITED = 'exited';
-    static STATE_BODY = 'body';
     //web controller states
-    static STATE_REQUEST = 'request';
-    static STATE_REQUEST_BODY = 'requestBody';
-    static STATE_REQUEST_HEADERS = 'requestHeader';
-    static STATE_REQUEST_COOKIES = 'requestCookie';
-    static STATE_HEADERS = 'headers';
-    static STATE_COOKIES = 'cookies';
-    static STATE_HOSTNAME = 'hostname';
-    static STATE_QUERY = 'query';
-    static STATE_STATUS = 'status';
     //web application states
-    static STATE_PARAMS = 'params';
-    static STATE_CLIENT_IP = 'clientIP';
-    static STATE_USER_AGENT = 'userAgent';
-    static STATE_CHECKPOINT = 'checkpoint';
-    static STATE_LANGUAGE = 'language';
     /**
      *
      * @type {ControllerMixin[]}
@@ -46,36 +49,36 @@ export default class Controller {
         const query = request.query || {};
         const params = request.params || {};
         const raw = request.raw || {};
-        this.state.set(Controller.STATE_CLIENT, this);
-        this.state.set(Controller.STATE_ACTION, params.action);
-        this.state.set(Controller.STATE_EXITED, false);
-        this.state.set(Controller.STATE_BODY, '');
-        this.state.set(Controller.STATE_REQUEST, request);
-        this.state.set(Controller.STATE_REQUEST_BODY, request.body);
-        this.state.set(Controller.STATE_REQUEST_HEADERS, request.headers);
-        this.state.set(Controller.STATE_REQUEST_COOKIES, request.cookies);
-        this.state.set(Controller.STATE_HEADERS, {});
-        this.state.set(Controller.STATE_QUERY, query);
+        this.state.set(ControllerState.CLIENT, this);
+        this.state.set(ControllerState.ACTION, params.action);
+        this.state.set(ControllerState.EXITED, false);
+        this.state.set(ControllerState.BODY, '');
+        this.state.set(ControllerState.REQUEST, request);
+        this.state.set(ControllerState.REQUEST_BODY, request.body);
+        this.state.set(ControllerState.REQUEST_HEADERS, request.headers);
+        this.state.set(ControllerState.REQUEST_COOKIES, request.cookies);
+        this.state.set(ControllerState.HEADERS, {});
+        this.state.set(ControllerState.QUERY, query);
         /**
          * cookie to set
          * @type {{name: String, value: String, options: {secure:Boolean, maxAge:Number}}[]} cookies
          */
         const cookies = [];
         const reqHeaders = request?.headers || {};
-        this.state.set(Controller.STATE_COOKIES, cookies);
-        this.state.set(Controller.STATE_STATUS, 200);
-        this.state.set(Controller.STATE_PARAMS, params);
-        this.state.set(Controller.STATE_LANGUAGE, params.language || query.language);
-        this.state.set(Controller.STATE_CLIENT_IP, (!request?.headers) ? '0.0.0.0' : (reqHeaders['cf-connecting-ip']
+        this.state.set(ControllerState.COOKIES, cookies);
+        this.state.set(ControllerState.STATUS, 200);
+        this.state.set(ControllerState.PARAMS, params);
+        this.state.set(ControllerState.LANGUAGE, params.language || query.language);
+        this.state.set(ControllerState.CLIENT_IP, (!request?.headers) ? '0.0.0.0' : (reqHeaders['cf-connecting-ip']
             || reqHeaders['x-real-ip']
             || reqHeaders['x-real_ip']
             || reqHeaders['x-forwarded-for']
             || reqHeaders['remote_addr']
             || request.ip
             || '0.0.0.0'));
-        this.state.set(Controller.STATE_USER_AGENT, reqHeaders['user-agent'] || '');
-        this.state.set(Controller.STATE_HOSTNAME, raw.hostname);
-        this.state.set(Controller.STATE_CHECKPOINT, query.checkpoint || query.cp || null);
+        this.state.set(ControllerState.USER_AGENT, reqHeaders['user-agent'] || '');
+        this.state.set(ControllerState.HOSTNAME, raw.hostname);
+        this.state.set(ControllerState.CHECKPOINT, query.checkpoint || query.cp || null);
         state.forEach((value, key) => {
             this.state.set(key, value);
         });
@@ -90,37 +93,37 @@ export default class Controller {
     async execute(actionName = null, retainState = false) {
         try {
             // guard check function action_* exist
-            const action = `action_${actionName || this.state.get(Controller.STATE_ACTION) || 'index'}`;
-            this.state.set(Controller.STATE_FULL_ACTION_NAME, action);
+            const action = `action_${actionName || this.state.get(ControllerState.ACTION) || 'index'}`;
+            this.state.set(ControllerState.FULL_ACTION_NAME, action);
             if (this[action] === undefined)
                 await this.#handleActionNotFound(action);
             // stage 0 : setup
-            if (!this.state.get(Controller.STATE_EXITED))
+            if (!this.state.get(ControllerState.EXITED))
                 await this.#mixinsSetup();
             // stage 1 : before
-            if (!this.state.get(Controller.STATE_EXITED))
+            if (!this.state.get(ControllerState.EXITED))
                 await this.#mixinsBefore();
-            if (!this.state.get(Controller.STATE_EXITED))
+            if (!this.state.get(ControllerState.EXITED))
                 await this.before();
             // stage 2 : action
-            if (!this.state.get(Controller.STATE_EXITED))
+            if (!this.state.get(ControllerState.EXITED))
                 await this.mixinsAction(action);
-            if (!this.state.get(Controller.STATE_EXITED))
+            if (!this.state.get(ControllerState.EXITED))
                 await this[action]();
             // stage 3 : after
-            if (!this.state.get(Controller.STATE_EXITED))
+            if (!this.state.get(ControllerState.EXITED))
                 await this.#mixinsAfter();
-            if (!this.state.get(Controller.STATE_EXITED))
+            if (!this.state.get(ControllerState.EXITED))
                 await this.after();
         }
         catch (err) {
             await this.#serverError(err);
         }
         const result = {
-            status: this.state.get(Controller.STATE_STATUS),
-            body: this.state.get(Controller.STATE_BODY),
-            headers: this.state.get(Controller.STATE_HEADERS),
-            cookies: this.state.get(Controller.STATE_COOKIES),
+            status: this.state.get(ControllerState.STATUS),
+            body: this.state.get(ControllerState.BODY),
+            headers: this.state.get(ControllerState.HEADERS),
+            cookies: this.state.get(ControllerState.COOKIES),
         };
         //clear state to prevent memory leak
         if (!retainState)
@@ -147,7 +150,7 @@ export default class Controller {
     async #loopMixins(lambda) {
         const { mixins } = this.constructor;
         for (let i = 0; i < mixins.length; i++) {
-            if (this.state.get(Controller.STATE_EXITED))
+            if (this.state.get(ControllerState.EXITED))
                 break;
             // eslint-disable-next-line no-await-in-loop
             await lambda(mixins[i]);
@@ -173,7 +176,7 @@ export default class Controller {
      * @param {string} msg
      */
     async #notFound(msg) {
-        this.state.set(Controller.STATE_BODY, `404 / ${msg}`);
+        this.state.set(ControllerState.BODY, `404 / ${msg}`);
         await this.exit(404);
     }
     /**
@@ -182,9 +185,9 @@ export default class Controller {
      */
     async #serverError(err) {
         this.error = err;
-        const body = this.state.get(Controller.STATE_BODY);
+        const body = this.state.get(ControllerState.BODY);
         if (!body)
-            this.state.set(Controller.STATE_BODY, err.message || '500 / Internal Server Error');
+            this.state.set(ControllerState.BODY, err.message || '500 / Internal Server Error');
         await this.exit(500);
     }
     /**
@@ -193,17 +196,17 @@ export default class Controller {
      * @param {boolean} keepQueryString
      */
     async redirect(location, keepQueryString = false) {
-        const headers = this.state.get(Controller.STATE_HEADERS);
+        const headers = this.state.get(ControllerState.HEADERS);
         if (!keepQueryString) {
             headers.location = location;
         }
         else {
-            const query = new URLSearchParams(this.state.get(Controller.STATE_QUERY));
+            const query = new URLSearchParams(this.state.get(ControllerState.QUERY));
             const qs = query.toString();
             const delimiter = /\?/.test(location) ? '&' : '?';
             headers.location = qs ? `${location}${delimiter}${qs}` : location;
         }
-        this.state.set(Controller.STATE_HEADERS, headers);
+        this.state.set(ControllerState.HEADERS, headers);
         await this.exit(302);
     }
     /**
@@ -211,7 +214,7 @@ export default class Controller {
      * @param {string} msg
      */
     async forbidden(msg = '') {
-        this.state.set(Controller.STATE_BODY, `403 / ${msg}`);
+        this.state.set(ControllerState.BODY, `403 / ${msg}`);
         await this.exit(403);
     }
     /**
@@ -219,8 +222,8 @@ export default class Controller {
      * @param {Number} code
      */
     async exit(code) {
-        this.state.set(Controller.STATE_STATUS, code);
-        this.state.set(Controller.STATE_EXITED, true);
+        this.state.set(ControllerState.STATUS, code);
+        this.state.set(ControllerState.EXITED, true);
         //exit all mixins
         const { mixins } = this.constructor;
         await Promise.all(mixins.map(async (mixin) => mixin.exit(this.state)));

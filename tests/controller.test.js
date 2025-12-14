@@ -1,4 +1,4 @@
-import Controller from '../classes/Controller.mjs';
+import Controller, { ControllerState } from '../classes/Controller.mjs';
 import ControllerMixin from '../classes/ControllerMixin.mjs';
 
 class TestController extends Controller {
@@ -181,7 +181,7 @@ describe('test Controller', () => {
       static mixins = [...TestController.mixins, TestMixin]
     }
     const ins = new C({});
-    ins.state.set(Controller.STATE_BODY, 'hello');
+    ins.state.set(ControllerState.BODY, 'hello');
     const res = await ins.execute('error');
     expect(res.status).toBe(500);
     expect(res.body).toBe('hello');
@@ -202,13 +202,13 @@ describe('test Controller', () => {
   test('redirect', async () => {
     const ins = new Controller({});
     await ins.redirect('http://example.com');
-    expect(ins.state.get(Controller.STATE_STATUS)).toBe(302);
+    expect(ins.state.get(ControllerState.STATUS)).toBe(302);
   });
 
   test('forbidden', async () => {
     const ins = new Controller({});
     await ins.forbidden('No popo allowed');
-    expect(ins.state.get(Controller.STATE_STATUS)).toBe(403);
+    expect(ins.state.get(ControllerState.STATUS)).toBe(403);
   });
 
   test('not found default message', async () => {
@@ -221,8 +221,8 @@ describe('test Controller', () => {
   test('forbidden default message', async () => {
     const ins = new Controller({});
     await ins.forbidden();
-    expect(ins.state.get(Controller.STATE_BODY)).toBe('403 / ');
-    expect(ins.state.get(Controller.STATE_STATUS)).toBe(403);
+    expect(ins.state.get(ControllerState.BODY)).toBe('403 / ');
+    expect(ins.state.get(ControllerState.STATUS)).toBe(403);
   });
 
   test('mixin this', async () => {
@@ -389,27 +389,27 @@ describe('test Controller', () => {
   test('client IP', async () => {
     const c = new Controller({});
     await c.execute(null, true);
-    expect(c.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.0');
+    expect(c.state.get(ControllerState.CLIENT_IP)).toBe('0.0.0.0');
 
     const c1 = new Controller({ headers: { 'cf-connecting-ip': '0.0.0.1' } });
     await c1.execute(null, true);
-    expect(c1.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.1');
+    expect(c1.state.get(ControllerState.CLIENT_IP)).toBe('0.0.0.1');
 
     const c2 = new Controller({ headers: { 'x-real-ip': '0.0.0.2' } });
     await c2.execute(null, true);
-    expect(c2.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.2');
+    expect(c2.state.get(ControllerState.CLIENT_IP)).toBe('0.0.0.2');
 
     const c3 = new Controller({ headers: { 'x-forwarded-for': '0.0.0.3' } });
     await c3.execute(null, true);
-    expect(c3.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.3');
+    expect(c3.state.get(ControllerState.CLIENT_IP)).toBe('0.0.0.3');
 
     const c4 = new Controller({ headers: { remote_addr: '0.0.0.4' } });
     await c4.execute(null, true);
-    expect(c4.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.4');
+    expect(c4.state.get(ControllerState.CLIENT_IP)).toBe('0.0.0.4');
 
     const c5 = new Controller({ headers: {}, ip: '0.0.0.5' });
     await c5.execute(null, true);
-    expect(c5.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.5');
+    expect(c5.state.get(ControllerState.CLIENT_IP)).toBe('0.0.0.5');
   });
 
   test('inheritage', async () => {
@@ -536,7 +536,7 @@ describe('test Controller', () => {
     const c = new TestRedirectController({query:{utm_source: "test"}});
     await c.execute(null,true);
 
-    expect(c.state.get(Controller.STATE_HEADERS).location).toBe('https://example.com?utm_source=test');
+    expect(c.state.get(ControllerState.HEADERS).location).toBe('https://example.com?utm_source=test');
   })
 
   test("redirect add query string", async () => {
@@ -550,7 +550,7 @@ describe('test Controller', () => {
     const c = new TestRedirectController({query:{utm_source: "test"}});
     await c.execute(null,true);
 
-    expect(c.state.get(Controller.STATE_HEADERS).location).toBe('https://example.com?target=1&utm_source=test');
+    expect(c.state.get(ControllerState.HEADERS).location).toBe('https://example.com?target=1&utm_source=test');
   })
 
   test("redirect without query string", async () => {
@@ -564,30 +564,30 @@ describe('test Controller', () => {
     const c = new TestRedirectController({query:{}});
     await c.execute(null,true);
 
-    expect(c.state.get(Controller.STATE_HEADERS).location).toBe('https://example.com?target=1');
+    expect(c.state.get(ControllerState.HEADERS).location).toBe('https://example.com?target=1');
   })
 
   test('coverage, test action name', async () => {
     //default
     const c1 = new Controller({});
     await c1.execute(null,true);
-    expect(c1.state.get(Controller.STATE_FULL_ACTION_NAME)).toBe('action_index');
-    expect(c1.state.get(Controller.STATE_ACTION)).toBe(undefined);
+    expect(c1.state.get(ControllerState.FULL_ACTION_NAME)).toBe('action_index');
+    expect(c1.state.get(ControllerState.ACTION)).toBe(undefined);
 
     //from request
     const c2 = new Controller({params: {action: 'foo'}});
     await c2.execute(null,true);
-    expect(c2.state.get(Controller.STATE_FULL_ACTION_NAME)).toBe('action_foo');
+    expect(c2.state.get(ControllerState.FULL_ACTION_NAME)).toBe('action_foo');
 
     //direct access
     const c3 = new Controller({});
     await c3.execute('bar',true);
-    expect(c3.state.get(Controller.STATE_FULL_ACTION_NAME)).toBe('action_bar');
+    expect(c3.state.get(ControllerState.FULL_ACTION_NAME)).toBe('action_bar');
 
     //direct access, with request action
     const c4 = new Controller({params: {action: 'foo'}});
     await c4.execute('tar',true);
-    expect(c4.state.get(Controller.STATE_FULL_ACTION_NAME)).toBe('action_tar');
+    expect(c4.state.get(ControllerState.FULL_ACTION_NAME)).toBe('action_tar');
   });
 
   test('assign state from constructor', async () =>{
@@ -613,7 +613,7 @@ describe('test Controller', () => {
       }
     });
     await c0.execute(null,true);
-    expect(c0.state.get(Controller.STATE_CLIENT_IP)).toBe('0.0.0.0');
+    expect(c0.state.get(ControllerState.CLIENT_IP)).toBe('0.0.0.0');
 
     const c1 = new Controller({
       headers:{
@@ -621,7 +621,7 @@ describe('test Controller', () => {
       }
     });
     await c1.execute(null,true);
-    expect(c1.state.get(Controller.STATE_CLIENT_IP)).toBe('666.777.888.999');
+    expect(c1.state.get(ControllerState.CLIENT_IP)).toBe('666.777.888.999');
 
     const c2 = new Controller({
       headers:{
@@ -629,6 +629,6 @@ describe('test Controller', () => {
       }
     });
     await c2.execute(null,true);
-    expect(c2.state.get(Controller.STATE_CLIENT_IP)).toBe('622.722.822.922');
+    expect(c2.state.get(ControllerState.CLIENT_IP)).toBe('622.722.822.922');
   });
 });

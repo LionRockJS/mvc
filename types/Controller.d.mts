@@ -31,27 +31,29 @@ export interface ControllerResult {
         };
     }>;
 }
+export declare enum ControllerState {
+    CLIENT = "client",
+    ACTION = "action",
+    FULL_ACTION_NAME = "fullActionName",
+    EXITED = "exited",
+    BODY = "body",
+    REQUEST = "request",
+    REQUEST_BODY = "requestBody",
+    REQUEST_HEADERS = "requestHeader",
+    REQUEST_COOKIES = "requestCookie",
+    HEADERS = "headers",
+    COOKIES = "cookies",
+    HOSTNAME = "hostname",
+    QUERY = "query",
+    STATUS = "status",
+    PARAMS = "params",
+    CLIENT_IP = "clientIP",
+    USER_AGENT = "userAgent",
+    CHECKPOINT = "checkpoint",
+    LANGUAGE = "language"
+}
 export default class Controller {
     #private;
-    static readonly STATE_CLIENT = "client";
-    static readonly STATE_ACTION = "action";
-    static readonly STATE_FULL_ACTION_NAME = "fullActionName";
-    static readonly STATE_EXITED = "exited";
-    static readonly STATE_BODY = "body";
-    static readonly STATE_REQUEST = "request";
-    static readonly STATE_REQUEST_BODY = "requestBody";
-    static readonly STATE_REQUEST_HEADERS = "requestHeader";
-    static readonly STATE_REQUEST_COOKIES = "requestCookie";
-    static readonly STATE_HEADERS = "headers";
-    static readonly STATE_COOKIES = "cookies";
-    static readonly STATE_HOSTNAME = "hostname";
-    static readonly STATE_QUERY = "query";
-    static readonly STATE_STATUS = "status";
-    static readonly STATE_PARAMS = "params";
-    static readonly STATE_CLIENT_IP = "clientIP";
-    static readonly STATE_USER_AGENT = "userAgent";
-    static readonly STATE_CHECKPOINT = "checkpoint";
-    static readonly STATE_LANGUAGE = "language";
     /**
      *
      * @type {ControllerMixin[]}
