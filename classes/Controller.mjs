@@ -40,6 +40,7 @@ export default class Controller {
     // properties
     error = null;
     state = new Map();
+    version = '2.0.0';
     /**
      *
      * @param {Request} request

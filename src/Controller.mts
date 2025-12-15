@@ -71,14 +71,15 @@ export default class Controller {
 
   // properties
   error: Error | null = null;
-  state = new Map<string, any>();
+  state = new Map<any, any>();
+  version = '2.0.0';
 
   /**
    *
    * @param {Request} request
    * @param {Map} state
    */
-  constructor(request: Request, state = new Map<string, any>()) {
+  constructor(request: Request, state = new Map<any, any>()) {
     const query = request.query || {};
     const params = request.params || {};
     const raw = request.raw || {};

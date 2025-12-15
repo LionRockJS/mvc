@@ -15,3 +15,4 @@ export default class Model {
         this.#states.push({ ...this });
     }
 }
+Object.freeze(Model.prototype);

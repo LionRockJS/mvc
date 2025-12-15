@@ -61,13 +61,14 @@ export default class Controller {
     static mixins: typeof ControllerMixin[];
     static suppressActionNotFound: boolean;
     error: Error | null;
-    state: Map<string, any>;
+    state: Map<any, any>;
+    version: string;
     /**
      *
      * @param {Request} request
      * @param {Map} state
      */
-    constructor(request: Request, state?: Map<string, any>);
+    constructor(request: Request, state?: Map<any, any>);
     /**
      *
      * @param {string | null} actionName
