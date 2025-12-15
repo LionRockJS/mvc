@@ -54,7 +54,6 @@ The `ControllerState` enum defines standard keys for accessing state information
 - `STATUS`: The HTTP status code.
 
 ### Params vs Query
-
 - **PARAMS (`ControllerState.PARAMS`)**: Represents parameters extracted from the URL path (e.g., `/users/:id`). These are typically defined by the routing system before reaching the controller.
 - **QUERY (`ControllerState.QUERY`)**: Represents parameters extracted from the URL query string (e.g., `?sort=asc&page=2`).
 
