@@ -14,7 +14,7 @@ class TestController extends Controller {
 }
 
 class TestMixin extends ControllerMixin {
-  static init(state:Map<any, any>) {
+  static init(state:Map<string, any>) {
     state.set('foo', 'bar');
     state.set('who', this);
     state.set('name', this.name);
@@ -24,27 +24,27 @@ class TestMixin extends ControllerMixin {
     throw new Error('Expected Error');
   }
 
-  static async action_test1(state:Map<any, any>) {
+  static async action_test1(state:Map<string, any>) {
     state.set('name', 'hello 1');
   }
 
-  static async action_test3(state:Map<any, any>) {
+  static async action_test3(state:Map<string, any>) {
     state.set('name', 'ouch 1');
   }
 }
 
 class TestMixin2 extends ControllerMixin {
-  static async action_test2(state:Map<any, any>) {
+  static async action_test2(state:Map<string, any>) {
     state.set('name', 'hello 2');
   }
 
-  static async action_test3(state:Map<any, any>) {
+  static async action_test3(state:Map<string, any>) {
     state.set('name', 'ouch 2');
   }
 }
 
 class TestMixin3 extends ControllerMixin {
-  static async init(state:Map<any, any>) {
+  static async init(state:Map<string, any>) {
     state.set('foo', 'tar');
   }
 }
@@ -55,19 +55,19 @@ class TestMixin4 extends ControllerMixin {
 }
 
 class TestMixinStopAtBefore extends ControllerMixin {
-  static async before(state:Map<any, any>) {
+  static async before(state:Map<string, any>) {
     state.get('client').exit(503);
   }
 }
 
 class TestMixinStopAtAction extends ControllerMixin {
-  static async action_test2(state:Map<any, any>) {
+  static async action_test2(state:Map<string, any>) {
     state.get('client').exit(503);
   }
 }
 
 class TestMixinStopAtAfter extends ControllerMixin {
-  static async after(state:Map<any, any>) {
+  static async after(state:Map<string, any>) {
     state.get('client').exit(503);
   }
 }
@@ -79,11 +79,11 @@ describe('test Controller', () => {
 
   test('test prototype pollution', async () => {
     try{
-      Controller.prototype.foo = () => 'bar';
+      (Controller.prototype as any).foo = () => 'bar';
       const ins:any = new Controller({});
       expect(ins.foo).toBe(undefined);
       expect('').toBe('this line should not be run');
-    }catch(e){
+    }catch(e: any){
       expect(/not extensible/.test(e.message)).toBe(true);
     }
   });
@@ -420,30 +420,30 @@ describe('test Controller', () => {
 
   test('inheritage', async () => {
     class M1 extends ControllerMixin {
-      static async setup(state:Map<any, any>) {
+      static async setup(state:Map<string, any>) {
         const client = state.get('client');
         client.value += 1;
       }
 
-      static action_foo(state:Map<any, any>) {
+      static action_foo(state:Map<string, any>) {
         const client = state.get('client');
         client.foo = true;
       }
     }
     class M2 extends ControllerMixin {
-      static async setup(state:Map<any, any>) {
+      static async setup(state:Map<string, any>) {
         const client = state.get('client');
         client.value += 1;
       }
 
-      static action_bar(state:Map<any, any>) {
+      static action_bar(state:Map<string, any>) {
         const client = state.get('client');
         client.bar = true;
       }
     }
 
     class A extends Controller {
-      static mixins = [M1]
+      static mixins: typeof ControllerMixin[] = [M1]
       value = 0;
       foo;
       bar;
@@ -465,11 +465,11 @@ describe('test Controller', () => {
     }
 
     class B extends A {
-      static mixins = [...super.mixins, M1]
+      static mixins: typeof ControllerMixin[] = [...super.mixins, M1]
     }
 
     class C extends B {
-      static mixins = [...super.mixins, M1, M2]
+      static mixins: typeof ControllerMixin[] = [...super.mixins, M1, M2]
     }
 
     const b0 = new B({});
@@ -502,23 +502,23 @@ describe('test Controller', () => {
 
   test('inheritage form B', async () => {
     class M1 extends ControllerMixin {
-      static async setup(state:Map<any, any>) {
+      static async setup(state:Map<string, any>) {
         const client = state.get('client');
         client.value += 1;
       }
     }
 
     class A extends Controller {
-      static mixins = [M1]
+      static mixins: typeof ControllerMixin[] = [M1]
       value = 0;
     }
 
     class B extends A {
-      static mixins = [...super.mixins, M1]
+      static mixins: typeof ControllerMixin[] = [...super.mixins, M1]
     }
 
     class C extends B {
-      static mixins = [...super.mixins, M1]
+      static mixins: typeof ControllerMixin[] = [...super.mixins, M1]
     }
 
     const c0 = new C({});

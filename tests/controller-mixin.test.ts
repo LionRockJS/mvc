@@ -3,7 +3,7 @@ import Controller from '../src/Controller.mts';
 import ControllerMixin from '../src/ControllerMixin.mts';
 
 class MA extends ControllerMixin {
-  static async setup(state:Map<any, any>) {
+  static async setup(state:Map<string, any>) {
     const client = state.get('client');
     if (client.ma === undefined) client.ma = 0;
     if (client.mabefore === undefined) client.mabefore = 0;
@@ -12,13 +12,13 @@ class MA extends ControllerMixin {
     client.ma += 1;
   }
 
-  static async before(state:Map<any, any>) {
+  static async before(state:Map<string, any>) {
     const client = state.get('client');
     client.mbefore += 1;
     client.mabefore += 1;
   }
 
-  static async action_a(state:Map<any, any>) {
+  static async action_a(state:Map<string, any>) {
     const client = state.get('client');
     client.a = true;
     client.acount += 1;
@@ -26,7 +26,7 @@ class MA extends ControllerMixin {
 }
 
 class MB extends ControllerMixin {
-  static async setup(state:Map<any, any>) {
+  static async setup(state:Map<string, any>) {
     const client = state.get('client');
     if (client.mb === undefined) client.mb = 0;
     if (client.mbbefore === undefined) client.mbbefore = 0;
@@ -35,13 +35,13 @@ class MB extends ControllerMixin {
     client.mb += 1;
   }
 
-  static async before(state:Map<any, any>) {
+  static async before(state:Map<string, any>) {
     const client = state.get('client');
     client.mbefore += 1;
     client.mbbefore += 1;
   }
 
-  static async action_b(state:Map<any, any>) {
+  static async action_b(state:Map<string, any>) {
     const client = state.get('client');
     client.b = true;
     client.acount += 1;
@@ -90,13 +90,13 @@ class CCA extends Controller {
 describe('test Controller', () => {
   test('not primitive class variable is funny when extend', async () => {
     class A{
-      static foos = [];
+      static foos: string[] = [];
     }
 
     class B extends A{}
     class C extends A{}
 
-    C.foos.push('foo')
+    (C as any).foos.push('foo')
 
     expect(A.foos).toBe(B.foos);
     expect(B.foos).toBe(C.foos);
@@ -104,7 +104,7 @@ describe('test Controller', () => {
 
   test("clone class variable", async()=>{
     class A{
-      static foos = [];
+      static foos: string[] = [];
     }
 
     class B extends A{
@@ -112,10 +112,10 @@ describe('test Controller', () => {
     }
 
     class C extends A{}
-    C.foos = [...C.foos, "foo"];
-    expect(C.foos[0]).toBe('foo');
+    (C as any).foos = [...C.foos, "foo"];
+    const cfoos = (C as any).foos;
+    expect(cfoos[0]).toBe('foo');
     expect(B.foos).not.toBe(C.foos);
-
     expect(B.foos[0]).toBe('bar');
     expect(A.foos).not.toBe(B.foos);
   })

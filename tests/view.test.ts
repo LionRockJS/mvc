@@ -31,11 +31,11 @@ describe('test View', () => {
 
   test('test prototype pollution', async () => {
     try{
-      View.prototype.foo = () => 'bar';
+      (View.prototype as any).foo = () => 'bar';
       const ins = new View("",{});
-      expect(ins.foo).toBe(undefined);
+      expect((ins as any).foo).toBe(undefined);
       expect('').toBe('this line should not be run');
-    }catch(e){
+    }catch(e: any){
       expect(/not extensible/.test(e.message)).toBe(true);
     }
   });
