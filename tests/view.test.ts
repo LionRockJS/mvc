@@ -1,4 +1,5 @@
-import View from '../classes/View.mjs';
+import { describe, expect, test } from 'bun:test';
+import View from '../src/View.mts';
 
 describe('test View', () => {
 
@@ -31,7 +32,7 @@ describe('test View', () => {
   test('test prototype pollution', async () => {
     try{
       View.prototype.foo = () => 'bar';
-      const ins = new View({});
+      const ins = new View("",{});
       expect(ins.foo).toBe(undefined);
       expect('').toBe('this line should not be run');
     }catch(e){

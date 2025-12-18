@@ -1,4 +1,4 @@
-import Model from '../src/Model.mjs';
+import Model from '../src/Model.mts';
 import { describe, expect, test } from 'bun:test';
 
 class TestModel extends Model{

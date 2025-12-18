@@ -1,8 +1,9 @@
-import Controller from '../classes/Controller.mjs';
-import ControllerMixin from '../classes/ControllerMixin.mjs';
+import { describe, expect, test } from 'bun:test';
+import Controller from '../src/Controller.mts';
+import ControllerMixin from '../src/ControllerMixin.mts';
 
 class MA extends ControllerMixin {
-  static async setup(state) {
+  static async setup(state:Map<any, any>) {
     const client = state.get('client');
     if (client.ma === undefined) client.ma = 0;
     if (client.mabefore === undefined) client.mabefore = 0;
@@ -11,13 +12,13 @@ class MA extends ControllerMixin {
     client.ma += 1;
   }
 
-  static async before(state) {
+  static async before(state:Map<any, any>) {
     const client = state.get('client');
     client.mbefore += 1;
     client.mabefore += 1;
   }
 
-  static async action_a(state) {
+  static async action_a(state:Map<any, any>) {
     const client = state.get('client');
     client.a = true;
     client.acount += 1;
@@ -25,7 +26,7 @@ class MA extends ControllerMixin {
 }
 
 class MB extends ControllerMixin {
-  static async setup(state) {
+  static async setup(state:Map<any, any>) {
     const client = state.get('client');
     if (client.mb === undefined) client.mb = 0;
     if (client.mbbefore === undefined) client.mbbefore = 0;
@@ -34,13 +35,13 @@ class MB extends ControllerMixin {
     client.mb += 1;
   }
 
-  static async before(state) {
+  static async before(state:Map<any, any>) {
     const client = state.get('client');
     client.mbefore += 1;
     client.mbbefore += 1;
   }
 
-  static async action_b(state) {
+  static async action_b(state:Map<any, any>) {
     const client = state.get('client');
     client.b = true;
     client.acount += 1;
@@ -109,6 +110,7 @@ describe('test Controller', () => {
     class B extends A{
       static foos = [...A.foos, "bar"]
     }
+
     class C extends A{}
     C.foos = [...C.foos, "foo"];
     expect(C.foos[0]).toBe('foo');
@@ -119,7 +121,7 @@ describe('test Controller', () => {
   })
 
   test('test simple controller', async () => {
-    const c = new CA({});
+    const c:any = new CA({});
     c.action_a = async () => {};
     expect(c.ma).toBe(undefined);
     expect(c.mbefore).toBe(undefined);
@@ -133,7 +135,7 @@ describe('test Controller', () => {
   });
 
   test('test controller use static variable rather than Controller.mixin', async ()=>{
-    const c = new CCA({});
+    const c:any = new CCA({});
     c.action_a = async () => {};
     expect(c.ma).toBe(undefined);
     expect(c.mbefore).toBe(undefined);
@@ -147,7 +149,7 @@ describe('test Controller', () => {
   })
 
   test('test simple controller, action match', async () => {
-    const c = new CA({});
+    const c:any = new CA({});
     c.action_a = async () => {};
     expect(c.ma).toBe(undefined);
     expect(c.mbefore).toBe(undefined);
@@ -161,7 +163,7 @@ describe('test Controller', () => {
   });
 
   test('multi mxin', async () => {
-    const c = new CA2({});
+    const c:any = new CA2({});
 
     expect(c.ma).toBe(undefined);
     expect(c.mb).toBe(undefined);
@@ -182,7 +184,7 @@ describe('test Controller', () => {
   });
 
   test('multi mxin match a', async () => {
-    const c = new CA2({});
+    const c:any = new CA2({});
 
     await c.execute('a');
     expect(c.ma).toBe(1);
@@ -195,7 +197,7 @@ describe('test Controller', () => {
   });
 
   test('multi mxin match b', async () => {
-    const c = new CA2({});
+    const c:any = new CA2({});
 
     await c.execute('b');
     expect(c.ma).toBe(1);
@@ -208,7 +210,7 @@ describe('test Controller', () => {
   });
 
   test('inherit simple', async () => {
-    const c = new CB({});
+    const c:any = new CB({});
 
     expect(c.ma).toBe(undefined);
     expect(c.mabefore).toBe(undefined);
@@ -222,7 +224,7 @@ describe('test Controller', () => {
   });
 
   test('inherit simple match a', async () => {
-    const c = new CB({});
+    const c:any = new CB({});
 
     expect(c.ma).toBe(undefined);
     expect(c.mabefore).toBe(undefined);
@@ -236,7 +238,7 @@ describe('test Controller', () => {
   });
 
   test('inherit multi match b', async () => {
-    const c = new CB2({});
+    const c:any = new CB2({});
 
     expect(c.ma).toBe(undefined);
     expect(c.mb).toBe(undefined);
@@ -257,7 +259,7 @@ describe('test Controller', () => {
   });
 
   test('inherit multi multi match a', async () => {
-    const c = new CB3({});
+    const c:any = new CB3({});
 
     expect(c.ma).toBe(undefined);
     expect(c.mb).toBe(undefined);

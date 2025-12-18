@@ -1,5 +1,6 @@
-import Controller, { ControllerState } from '../classes/Controller.mjs';
-import ControllerMixin from '../classes/ControllerMixin.mjs';
+import { describe, expect, test, beforeEach } from 'bun:test';
+import Controller, { ControllerState, Request } from '../src/Controller.mts';
+import ControllerMixin from '../src/ControllerMixin.mts';
 
 class TestController extends Controller {
   // eslint-disable-next-line class-methods-use-this
@@ -13,7 +14,7 @@ class TestController extends Controller {
 }
 
 class TestMixin extends ControllerMixin {
-  static init(state) {
+  static init(state:Map<any, any>) {
     state.set('foo', 'bar');
     state.set('who', this);
     state.set('name', this.name);
@@ -23,27 +24,27 @@ class TestMixin extends ControllerMixin {
     throw new Error('Expected Error');
   }
 
-  static async action_test1(state) {
+  static async action_test1(state:Map<any, any>) {
     state.set('name', 'hello 1');
   }
 
-  static async action_test3(state) {
+  static async action_test3(state:Map<any, any>) {
     state.set('name', 'ouch 1');
   }
 }
 
 class TestMixin2 extends ControllerMixin {
-  static async action_test2(state) {
+  static async action_test2(state:Map<any, any>) {
     state.set('name', 'hello 2');
   }
 
-  static async action_test3(state) {
+  static async action_test3(state:Map<any, any>) {
     state.set('name', 'ouch 2');
   }
 }
 
 class TestMixin3 extends ControllerMixin {
-  static async init(state) {
+  static async init(state:Map<any, any>) {
     state.set('foo', 'tar');
   }
 }
@@ -54,19 +55,19 @@ class TestMixin4 extends ControllerMixin {
 }
 
 class TestMixinStopAtBefore extends ControllerMixin {
-  static async before(state) {
+  static async before(state:Map<any, any>) {
     state.get('client').exit(503);
   }
 }
 
 class TestMixinStopAtAction extends ControllerMixin {
-  static async action_test2(state) {
+  static async action_test2(state:Map<any, any>) {
     state.get('client').exit(503);
   }
 }
 
 class TestMixinStopAtAfter extends ControllerMixin {
-  static async after(state) {
+  static async after(state:Map<any, any>) {
     state.get('client').exit(503);
   }
 }
@@ -79,7 +80,7 @@ describe('test Controller', () => {
   test('test prototype pollution', async () => {
     try{
       Controller.prototype.foo = () => 'bar';
-      const ins = new Controller({});
+      const ins:any = new Controller({});
       expect(ins.foo).toBe(undefined);
       expect('').toBe('this line should not be run');
     }catch(e){
@@ -101,6 +102,8 @@ describe('test Controller', () => {
 
   test('get default action', async () => {
     class C extends Controller {
+      body = "";
+
       async action_index() {
         this.body = 'index';
       }
@@ -117,6 +120,7 @@ describe('test Controller', () => {
 
   test('get empty params', async () => {
     class C extends Controller {
+      body = "";
       async action_index() {
         this.body = 'index';
       }
@@ -129,6 +133,7 @@ describe('test Controller', () => {
 
   test('specific action', async () => {
     class C extends Controller {
+      body = "";
       async action_hello() {
         this.body = 'hello';
       }
@@ -142,6 +147,7 @@ describe('test Controller', () => {
   test('call execture multiple time', async () => {
     class C extends Controller {
       count = 0;
+      body = '';
 
       async action_hello() {
         this.count += 1;
@@ -239,7 +245,7 @@ describe('test Controller', () => {
       static mixins = [...Controller.mixins, TestMixin, TestMixin2]
     }
 
-    const ins = new C({});
+    const ins:any = new C({});
     ins.action_test1 = async () => {};
 
     await ins.execute('test1', true);
@@ -252,7 +258,7 @@ describe('test Controller', () => {
       static mixins = [...Controller.mixins, TestMixin, TestMixin2]
     }
 
-    const ins = new C({});
+    const ins:any = new C({});
     ins.action_test2 = async () => {};
     await ins.execute('test2', true);
 
@@ -264,13 +270,13 @@ describe('test Controller', () => {
       static mixins = [...Controller.mixins, TestMixin3, TestMixin2]
     }
 
-    const ins = new C({});
+    const ins:any = new C({});
     ins.action_test3 = async () => {};
     await ins.execute('test3');
 
     try {
       ins.state.get('name');
-    } catch (e) {
+    } catch (e:any) {
       expect(e.message).toBe('conflict mixin export value found: (ouch 2) , (ouch 1)');
     }
   });
@@ -280,7 +286,7 @@ describe('test Controller', () => {
       static mixins = [...Controller.mixins, TestMixin, TestMixin2]
     }
 
-    const ins = new C({});
+    const ins:any = new C({});
     ins.action_test4 = async () => {
       await ins.mixinsAction('action_test2');
     };
@@ -414,23 +420,23 @@ describe('test Controller', () => {
 
   test('inheritage', async () => {
     class M1 extends ControllerMixin {
-      static async setup(state) {
+      static async setup(state:Map<any, any>) {
         const client = state.get('client');
         client.value += 1;
       }
 
-      static action_foo(state) {
+      static action_foo(state:Map<any, any>) {
         const client = state.get('client');
         client.foo = true;
       }
     }
     class M2 extends ControllerMixin {
-      static async setup(state) {
+      static async setup(state:Map<any, any>) {
         const client = state.get('client');
         client.value += 1;
       }
 
-      static action_bar(state) {
+      static action_bar(state:Map<any, any>) {
         const client = state.get('client');
         client.bar = true;
       }
@@ -439,8 +445,11 @@ describe('test Controller', () => {
     class A extends Controller {
       static mixins = [M1]
       value = 0;
+      foo;
+      bar;
+      body = '';
 
-      constructor(request) {
+      constructor(request:Request) {
         super(request);
         this.foo = false;
         this.bar = false;
@@ -493,7 +502,7 @@ describe('test Controller', () => {
 
   test('inheritage form B', async () => {
     class M1 extends ControllerMixin {
-      static async setup(state) {
+      static async setup(state:Map<any, any>) {
         const client = state.get('client');
         client.value += 1;
       }
@@ -592,7 +601,7 @@ describe('test Controller', () => {
 
   test('assign state from constructor', async () =>{
     class TestPreStateController extends Controller {
-      constructor(request) {
+      constructor(request:Request) {
         super(request, new Map([['foo', 'bar']]));
       }
       // eslint-disable-next-line class-methods-use-this
