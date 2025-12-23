@@ -11,6 +11,13 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "src/**/*.mts"],
-  "exclude": ["node_modules", "dist", "types"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.mts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "types"
+  ]
 }
