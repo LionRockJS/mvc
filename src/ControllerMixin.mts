@@ -6,7 +6,7 @@
  *
  */
 
-export default class ControllerMixin {
+export default abstract class ControllerMixin {
   /**
    * init is static function during initialize controller,
    * should not directly modify controller's property because
