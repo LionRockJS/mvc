@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Controller and View module for LionRockJS",
   "type": "module",
-  "main": "classes/index.js",
+  "main": "dist/index.js",
   "types": "types/index.d.ts",
   "repository": {
     "type": "git",
