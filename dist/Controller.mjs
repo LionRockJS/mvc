@@ -48,7 +48,7 @@ export default class Controller {
      */
     constructor(request, state = new Map()) {
         const query = request.query || {};
-        const params = request.params || {};
+        const params = request.params ?? {};
         const raw = request.raw || {};
         this.state.set(ControllerState.CLIENT, this);
         this.state.set(ControllerState.ACTION, params.action);
